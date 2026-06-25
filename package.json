@@ -1,0 +1,10 @@
+{
+  "name": "developer-feedback-dashboard",
+  "version": "1.0.0",
+  "description": "Local MVP dashboard for public developer feedback about Together AI and Fireworks AI.",
+  "private": true,
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "node --test"
+  }
+}

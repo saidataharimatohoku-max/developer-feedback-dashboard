@@ -1,0 +1,87 @@
+{
+  "provider": "Together AI",
+  "generated_at": "2026-06-24T00:00:00Z",
+  "window": "last 365 days (plus a few older notable items)",
+  "source_count": 6,
+  "note": "Sample run. Source = Hacker News (Algolia) public search only; Reddit blocked the automated request (HTTP 403) and was not included. Most public HN mentions of Together AI were neutral or positive (cheap pricing, wide model support, ZDR/privacy). IMPORTANT BIAS FLAG: several critical items below were posted by competitors launching rival inference products (IonRouter, ApeKey, Promptma), so treat their comparative claims accordingly.",
+  "complaints": [
+    {
+      "id": "tg-0001",
+      "complaint": "A developer reported that Together AI 'lacked some key features like prompt history, parameter adjustments, and the ability to compare different prompt results and costs directly' for prompt engineering (said while launching a tool built on top of it).",
+      "quote": "We tried using Together AI, but found it lacked some key features like prompt history, parameter adjustments, and the ability to compare different prompt results and costs directly.",
+      "category": "docs",
+      "sentiment": "mixed",
+      "author_handle": "lokinchiandy",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=40387824",
+      "corroborating_urls": [],
+      "date": "2024-05-17",
+      "verified": false
+    },
+    {
+      "id": "tg-0002",
+      "complaint": "In a user's informal latency benchmark, Together AI was the slowest of three providers tested (2.60s vs. Fireworks 1.42s and Groq 1.28s) for a Llama-3-70B request.",
+      "quote": "Time taken for get_together_ai_response_requests: 2.60 seconds ... Groq is still faster 1.28s vs 1.42s for fireworks",
+      "category": "latency",
+      "sentiment": "negative",
+      "author_handle": "rkwasny",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=40129707",
+      "corroborating_urls": [],
+      "date": "2024-04-23",
+      "verified": false
+    },
+    {
+      "id": "tg-0003",
+      "complaint": "A developer characterized Together AI as 'cheap but slower' relative to Groq and Fireworks, and cited unpredictable end-of-month bills when juggling multiple providers (posted while launching a competing routing product).",
+      "quote": "Groq is fast but only has a few models, Together AI is cheap but slower, Fireworks is reliable but more expensive.",
+      "category": "latency",
+      "sentiment": "negative",
+      "author_handle": "jadendhm",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=47137266",
+      "corroborating_urls": [],
+      "date": "2026-02-24",
+      "verified": false
+    },
+    {
+      "id": "tg-0004",
+      "complaint": "A competing provider's benchmark claimed higher throughput than Together AI on the same VLM workload (588 tok/s vs. Together AI's 298 tok/s), implying lower throughput on that workload. Source is a competitor launch, so treat as biased/comparative.",
+      "quote": "On multimodal pipelines we get better performance than big players (588 tok/s vs. Together AI's 298 on the same VLM workload).",
+      "category": "latency",
+      "sentiment": "mixed",
+      "author_handle": "vshah1016",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=47355410",
+      "corroborating_urls": [],
+      "date": "2026-03-12",
+      "verified": false
+    },
+    {
+      "id": "tg-0005",
+      "complaint": "A commenter argued Together AI's low token prices are 'heavily subsidized by more than $1B in VC money,' raising sustainability/true-cost concerns rather than a service defect.",
+      "quote": "Even that $1/Mtok provided by Together AI is heavily subsidized by more than $1B in VC money. This makes it unclear how the true cost curve is progressing.",
+      "category": "pricing",
+      "sentiment": "negative",
+      "author_handle": "Denzel",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=48467489",
+      "corroborating_urls": [],
+      "date": "2026-06-09",
+      "verified": false
+    },
+    {
+      "id": "tg-0006",
+      "complaint": "A 'Tell HN' post alleged Together AI is involved in a proof-of-work GPU 'mining' scheme (via a $PRL/Pearl partnership) the author calls 'snake oil and vaporware.' This is an unverified accusation/opinion, not a confirmed fact.",
+      "quote": "There is circumstantial evidence that, among others, NVIDIA and Together AI are behind it ... They are running useless PoW in an AI trench coat.",
+      "category": "other",
+      "sentiment": "negative",
+      "author_handle": "secondary_op",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=48422809",
+      "corroborating_urls": ["https://www.together.ai/blog/together-ai-partners-with-pearl-research-labs"],
+      "date": "2026-06-06",
+      "verified": false
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "provider": "Fireworks AI",
+  "generated_at": "2026-06-24T00:00:00Z",
+  "window": "last 365 days",
+  "source_count": 1,
+  "note": "Sample run. Source = Hacker News (Algolia) public search only; Reddit blocked the automated request (HTTP 403) and was not included. Most public HN mentions of Fireworks AI in this window were neutral or positive (fast, cheap, recommended); the item below was the clearest negative complaint.",
+  "complaints": [
+    {
+      "id": "fw-0001",
+      "complaint": "User reported that a Fireworks AI fine-tuning job (SFT on gpt-oss-20b, ~10k records) ran for about 8 minutes but was billed $192, which they estimated at roughly a 1000x markup versus renting equivalent GPUs elsewhere; they also called the service 'mediocre'.",
+      "quote": "It ran for 8 mins, and I got a bill for $192 !!! ... This is maybe the biggest markup I've ever seen in the industry.",
+      "category": "pricing",
+      "sentiment": "negative",
+      "author_handle": "mountainriver",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=45305173",
+      "corroborating_urls": [],
+      "date": "2025-09-19",
+      "verified": false
+    }
+  ]
+}

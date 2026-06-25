@@ -1,0 +1,11 @@
+# Dependencies (none required — zero-dependency project)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-06-24T00:00:00Z",
+  "note": "Precomputed snapshot over the existing normalized feedback in data/. Small sample (7 items: 6 Together AI, 1 Fireworks AI); treat all trends as 'based on the current sample', not definitive. feedback_type derived per ARCHITECTURE.md §3.1. All items are verified:false.",
+  "total": 7,
+  "by_platform": {
+    "Together AI": 6,
+    "Fireworks AI": 1
+  },
+  "by_feedback_type": {
+    "complaint": 6,
+    "feature_request": 1,
+    "question": 0,
+    "positive": 0
+  },
+  "by_category": {
+    "latency": 3,
+    "pricing": 2,
+    "docs": 1,
+    "other": 1
+  },
+  "by_sentiment": {
+    "negative": 5,
+    "mixed": 2,
+    "neutral": 0
+  },
+  "trend_by_month": [
+    { "month": "2024-04", "count": 1 },
+    { "month": "2024-05", "count": 1 },
+    { "month": "2025-09", "count": 1 },
+    { "month": "2026-02", "count": 1 },
+    { "month": "2026-03", "count": 1 },
+    { "month": "2026-06", "count": 2 }
+  ],
+  "undated_count": 0,
+  "top_issues": [
+    {
+      "id": "fw-0001",
+      "provider": "Fireworks AI",
+      "feedback_type": "complaint",
+      "category": "pricing",
+      "summary": "User reported that a Fireworks AI fine-tuning job (SFT on gpt-oss-20b, ~10k records) ran for about 8 minutes but was billed $192, which they estimated at roughly a 1000x markup versus renting equivalent GPUs elsewhere; they also called the service 'mediocre'.",
+      "source_url": "https://news.ycombinator.com/item?id=45305173",
+      "date": "2025-09-19"
+    },
+    {
+      "id": "tg-0002",
+      "provider": "Together AI",
+      "feedback_type": "complaint",
+      "category": "latency",
+      "summary": "In a user's informal latency benchmark, Together AI was the slowest of three providers tested (2.60s vs. Fireworks 1.42s and Groq 1.28s) for a Llama-3-70B request.",
+      "source_url": "https://news.ycombinator.com/item?id=40129707",
+      "date": "2024-04-23"
+    },
+    {
+      "id": "tg-0005",
+      "provider": "Together AI",
+      "feedback_type": "complaint",
+      "category": "pricing",
+      "summary": "A commenter argued Together AI's low token prices are 'heavily subsidized by more than $1B in VC money,' raising sustainability/true-cost concerns rather than a service defect.",
+      "source_url": "https://news.ycombinator.com/item?id=48467489",
+      "date": "2026-06-09"
+    },
+    {
+      "id": "tg-0001",
+      "provider": "Together AI",
+      "feedback_type": "feature_request",
+      "category": "docs",
+      "summary": "A developer reported that Together AI 'lacked some key features like prompt history, parameter adjustments, and the ability to compare different prompt results and costs directly' for prompt engineering (said while launching a tool built on top of it).",
+      "source_url": "https://news.ycombinator.com/item?id=40387824",
+      "date": "2024-05-17"
+    },
+    {
+      "id": "tg-0006",
+      "provider": "Together AI",
+      "feedback_type": "complaint",
+      "category": "other",
+      "summary": "A 'Tell HN' post alleged Together AI is involved in a proof-of-work GPU 'mining' scheme (via a $PRL/Pearl partnership) the author calls 'snake oil and vaporware.' This is an unverified accusation/opinion, not a confirmed fact.",
+      "source_url": "https://news.ycombinator.com/item?id=48422809",
+      "date": "2026-06-06"
+    }
+  ]
+}

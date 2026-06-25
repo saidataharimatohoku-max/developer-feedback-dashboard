@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Feedback Dashboard — Together AI &amp; Fireworks AI</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Developer Feedback Dashboard</h1>
+      <p class="subtitle">Together AI &amp; Fireworks AI</p>
+    </header>
+
+    <main class="container">
+      <!-- ============ Summary / Trends ============ -->
+      <section class="summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">Summary &amp; Trends</h2>
+
+        <div class="stat-cards" id="stat-cards" aria-live="polite">
+          <!-- total + platform stat cards injected here -->
+        </div>
+
+        <p class="chart-note">
+          Charts are generated from local <code>data/*.json</code> only — no live
+          APIs or scraping.
+        </p>
+
+        <div class="charts-grid">
+          <figure class="chart-card">
+            <figcaption>Feedback by platform</figcaption>
+            <div class="chart" id="chart-platform" role="img"
+              aria-label="Bar chart of feedback count by platform"></div>
+          </figure>
+          <figure class="chart-card">
+            <figcaption>Feedback by type</figcaption>
+            <div class="chart" id="chart-type" role="img"
+              aria-label="Bar chart of feedback count by type"></div>
+          </figure>
+          <figure class="chart-card chart-card-wide">
+            <figcaption>Trend by month</figcaption>
+            <div class="chart" id="chart-trend" role="img"
+              aria-label="Line chart of feedback count by month"></div>
+          </figure>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-block">
+            <h3>By category</h3>
+            <ul class="bar-list" id="by-category"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Filters ============ -->
+      <section class="filters" aria-labelledby="filters-heading">
+        <h2 id="filters-heading" class="visually-hidden">Filters</h2>
+        <form id="filter-form" class="filter-form" role="search">
+          <div class="field">
+            <label for="filter-platform">Platform</label>
+            <select id="filter-platform" name="platform">
+              <option value="">All platforms</option>
+              <option value="together-ai">Together AI</option>
+              <option value="fireworks-ai">Fireworks AI</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-feedback-type">Feedback type</label>
+            <select id="filter-feedback-type" name="feedback_type">
+              <option value="">All types</option>
+              <option value="complaint">Complaint</option>
+              <option value="question">Question</option>
+              <option value="feature_request">Feature request</option>
+              <option value="positive">Positive</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-category">Category</label>
+            <select id="filter-category" name="category">
+              <option value="">All categories</option>
+              <!-- categories injected from /api/summary -->
+            </select>
+          </div>
+
+          <div class="field field-search">
+            <label for="filter-q">Search</label>
+            <input
+              type="search"
+              id="filter-q"
+              name="q"
+              placeholder="Search summary &amp; original text…"
+              autocomplete="off"
+            />
+          </div>
+
+          <button type="button" id="reset-filters" class="reset-btn">Reset</button>
+        </form>
+      </section>
+
+      <!-- ============ Feedback list ============ -->
+      <section class="feedback" aria-labelledby="feedback-heading">
+        <div class="feedback-header">
+          <h2 id="feedback-heading">Feedback</h2>
+          <span class="result-count" id="result-count" aria-live="polite"></span>
+        </div>
+        <div class="card-grid" id="card-grid"></div>
+        <p class="empty-state" id="empty-state" hidden>
+          No feedback matches the current filters.
+        </p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
