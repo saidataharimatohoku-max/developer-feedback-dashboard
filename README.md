@@ -377,3 +377,9 @@ These rules (defined in [SOURCES.md](SOURCES.md)) govern every item, current and
    per-platform trend, interactive tooltips/legends).
 
 See [SOURCES.md](SOURCES.md) for the full source catalog, access methods, and rate limits.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE) — free to use, modify, and distribute.
