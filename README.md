@@ -3,6 +3,8 @@
 A **local** dashboard that visualizes public developer feedback — complaints, questions,
 feature requests, and positive feedback — about **Together AI** and **Fireworks AI**.
 
+![Developer Feedback Dashboard screenshot](docs/screenshot.png)
+
 > **MVP scope:** this app currently reads **only** the pre-collected JSON files in
 > [data/](data/) (`data/*.json`). There are **no live API calls and no scraping yet** —
 > the dataset is loaded from disk into memory at startup and served read-only. See
@@ -40,9 +42,8 @@ data guardrails, see [SOURCES.md](SOURCES.md).
 
 ## Dashboard tour
 
-The dashboard is a single page with three stacked sections. (No screenshots are committed
-because the app is local-only; the layout below mirrors what renders at
-`http://localhost:3000/`.)
+The dashboard is a single page with three stacked sections. The screenshot above shows the
+live app; the text layout below mirrors what renders at `http://localhost:3000/`.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
