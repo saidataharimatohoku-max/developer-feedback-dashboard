@@ -122,6 +122,7 @@ function normalize(raw, provider) {
     author_handle: emptyToNull(raw ? raw.author_handle : undefined),
     date: raw && typeof raw.date === 'string' && DATE_RE.test(raw.date) ? raw.date : null,
     verified: !!(raw && raw.verified === true),
+    auto_collected: !!(raw && raw.auto_collected === true),
   };
 }
 

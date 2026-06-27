@@ -1,0 +1,48 @@
+{
+  "provider": "Fireworks AI",
+  "generated_at": "2026-06-26T00:00:00Z",
+  "window": "last 365 days (live refresh plus the clearest older billing item)",
+  "source_count": 2,
+  "note": "Merged dataset (2026-06-26): the original Hacker News sweep plus a live refresh. Reddit, Trustpilot, and G2 blocked automated requests (HTTP 403) and were not included. Public sentiment toward Fireworks AI was overwhelmingly positive (repeatedly recommended as fast, low-latency, price-competitive, and quick to add new open models); genuine complaints were scarce, and the official status page showed ~99.98-100% 60-day uptime (no notable downtime). The items below are the few negative-leaning reports found, and most criticism is aimed at the open models being served (e.g. Kimi K2.5) rather than Fireworks' hosting. BIAS FLAG: fw-0003 (jadendhm) was posted by someone launching a competing routing product (ApeKey).",
+  "complaints": [
+    {
+      "id": "fw-0001",
+      "complaint": "User reported that a Fireworks AI fine-tuning job (SFT on gpt-oss-20b, ~10k records) ran for about 8 minutes but was billed $192, which they estimated at roughly a 1000x markup versus renting equivalent GPUs elsewhere; they also called the service 'mediocre'.",
+      "quote": "It ran for 8 mins, and I got a bill for $192 !!! ... This is maybe the biggest markup I've ever seen in the industry.",
+      "category": "billing",
+      "sentiment": "negative",
+      "author_handle": "mountainriver",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=45305173",
+      "corroborating_urls": [],
+      "date": "2025-09-19",
+      "verified": false
+    },
+    {
+      "id": "fw-0002",
+      "complaint": "A developer trying Kimi K2.5 served via Fireworks AI found the model 'significantly less focused and reliable' than Claude Opus 4.5 on an enterprise TypeScript task and was 'a bit disappointed', though they explicitly praised Fireworks' hosting speed. The grievance is about model output quality, not the provider's infrastructure.",
+      "quote": "I was a bit disappointed tbh, the speed via fireworks.ai is great, they're doing great work on the hosting side. But I found the model had to double-back to fix type issues, broken tests, etc, far more than Opus 4.5.",
+      "category": "model_quality",
+      "sentiment": "mixed",
+      "author_handle": "extr",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=46834169",
+      "corroborating_urls": [],
+      "date": "2026-01-31",
+      "verified": false
+    },
+    {
+      "id": "fw-0003",
+      "complaint": "A developer building a multi-provider routing product described Fireworks as 'reliable but more expensive' relative to Groq and Together AI, and cited surprise end-of-month bills from juggling several pay-as-you-go providers.",
+      "quote": "Groq is fast but only has a few models, Together AI is cheap but slower, Fireworks is reliable but more expensive.",
+      "category": "pricing",
+      "sentiment": "mixed",
+      "author_handle": "jadendhm",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=47137266",
+      "corroborating_urls": [],
+      "date": "2026-02-24",
+      "verified": false
+    }
+  ]
+}

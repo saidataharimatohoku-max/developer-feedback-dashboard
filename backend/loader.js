@@ -9,6 +9,10 @@ const DATA_DIR = path.join(__dirname, '..', 'data');
 const SOURCE_FILES = [
   'together-ai-complaints.json',
   'fireworks-ai-complaints.json',
+  'tinker-api-complaints.json',
+  'azure-kubernetes-service-complaints.json',
+  'azure-machine-learning-complaints.json',
+  'openai-complaints.json',
 ];
 
 /**
@@ -23,6 +27,7 @@ function loadRaw(dataDir = DATA_DIR) {
 
   for (const file of SOURCE_FILES) {
     const fullPath = path.join(dataDir, file);
+    if (!fs.existsSync(fullPath)) continue; // a configured source file may not exist in every dataset (e.g. test fixtures)
     const parsed = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
     const provider = parsed.provider;
     const complaints = Array.isArray(parsed.complaints) ? parsed.complaints : [];

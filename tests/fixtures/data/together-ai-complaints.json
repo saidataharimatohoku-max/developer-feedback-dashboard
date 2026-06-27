@@ -1,6 +1,6 @@
 {
   "provider": "Together AI",
-  "generated_at": "2026-06-26T15:17:10.647Z",
+  "generated_at": "2026-06-26T00:00:00Z",
   "window": "last 365 days (live refresh plus a few older notable items)",
   "source_count": 6,
   "note": "Merged dataset (2026-06-26): the original Hacker News sweep plus a live refresh that added new HN items and the official Together AI status page. Reddit, Trustpilot, and G2 blocked automated requests (HTTP 403) and were not included. Most public HN mentions of Together AI were neutral or positive (cheap pricing, wide model support, ZDR/privacy); the items below are the genuine negative-leaning complaints found. BIAS FLAGS: tg-0003 (jadendhm) and tg-0009 (booty) were posted by people launching competing routing products (ApeKey), and tg-0004 (vshah1016) is a competitor benchmark - treat their comparative claims accordingly.",
@@ -79,9 +79,7 @@
       "author_handle": "secondary_op",
       "source": "hackernews",
       "source_url": "https://news.ycombinator.com/item?id=48422809",
-      "corroborating_urls": [
-        "https://www.together.ai/blog/together-ai-partners-with-pearl-research-labs"
-      ],
+      "corroborating_urls": ["https://www.together.ai/blog/together-ai-partners-with-pearl-research-labs"],
       "date": "2026-06-06",
       "verified": false
     },
@@ -107,9 +105,7 @@
       "author_handle": "HDBaseT",
       "source": "hackernews",
       "source_url": "https://news.ycombinator.com/item?id=48200664",
-      "corroborating_urls": [
-        "https://status.together.ai/"
-      ],
+      "corroborating_urls": ["https://status.together.ai/"],
       "date": "2026-05-19",
       "verified": true
     },
@@ -138,104 +134,6 @@
       "corroborating_urls": [],
       "date": "2026-06-26",
       "verified": true
-    },
-    {
-      "id": "tg-0011",
-      "complaint": "Auto-collected Hacker News mention referencing Together AI: \"500+ open-source and frontier AI models with unified billing and super fast inference. Also way cheaper than other tool like Openrouter and Together AI. Status: Beta - accepting pilots for free API credits Reference: gatewayz.ai What's everyone else cooking? Let's hear it I'm curious\"",
-      "quote": "500+ open-source and frontier AI models with unified billing and super fast inference. Also way cheaper than other tool like Openrouter and Together AI. Status: Beta - accepting pilots for free API credits Reference: gatewayz.ai What's everyone else cooking? Let's hear it I'm curious",
-      "category": "billing",
-      "sentiment": "negative",
-      "author_handle": "TheHordeDev",
-      "source": "hackernews",
-      "source_url": "https://news.ycombinator.com/item?id=45455659",
-      "corroborating_urls": [],
-      "date": "2025-10-02",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0012",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"field coverage correct for providers that do return context data?** Verify the field names in the probe against raw `/v1/models` JSON from Together.ai and Fireworks.ai. Add any missing names before building the lazy-probe path. ## Do not implement until - Provider survey complete (question 1) - M...\"",
-      "quote": "field coverage correct for providers that do return context data?** Verify the field names in the probe against raw `/v1/models` JSON from Together.ai and Fireworks.ai. Add any missing names before building the lazy-probe path. ## Do not implement until - Provider survey complete (question 1) - M...",
-      "category": "model_quality",
-      "sentiment": "negative",
-      "author_handle": "jdmanring",
-      "source": "github",
-      "source_url": "https://github.com/jdmanring/odysseus/issues/57",
-      "corroborating_urls": [],
-      "date": "2026-06-19",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0013",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"on Always Free tier gives ~10–20 tok/sec. Scoring prompt needs ~200 output tokens = 15–30s inference. Too slow for real-time feedback. - **Together AI** — OpenAI-compatible API, dynamic rate limits that scale with usage, pay-per-token with no hard cap once on a paid account, ~$0.10/1M tokens for...\"",
-      "quote": "on Always Free tier gives ~10–20 tok/sec. Scoring prompt needs ~200 output tokens = 15–30s inference. Too slow for real-time feedback. - **Together AI** — OpenAI-compatible API, dynamic rate limits that scale with usage, pay-per-token with no hard cap once on a paid account, ~$0.10/1M tokens for...",
-      "category": "latency",
-      "sentiment": "negative",
-      "author_handle": "elischiffler",
-      "source": "github",
-      "source_url": "https://github.com/Mentro-PromptAnalyzer/Extension/issues/6",
-      "corroborating_urls": [],
-      "date": "2026-06-11",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0014",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"works. The request actually succeeds — the server log shows the 200 followed by a parse error: ``` httpx - INFO - HTTP Request: GET https://api.together.xyz/v1/models \"HTTP/1.1 200 OK\" routes.model_routes - WARNING - Failed to probe https://api.together.xyz/v1/models with API key: 'list' object h...\"",
-      "quote": "works. The request actually succeeds — the server log shows the 200 followed by a parse error: ``` httpx - INFO - HTTP Request: GET https://api.together.xyz/v1/models \"HTTP/1.1 200 OK\" routes.model_routes - WARNING - Failed to probe https://api.together.xyz/v1/models with API key: 'list' object h...",
-      "category": "model_quality",
-      "sentiment": "negative",
-      "author_handle": "Luffixos",
-      "source": "github",
-      "source_url": "https://github.com/pewdiepie-archdaemon/odysseus/issues/2202",
-      "corroborating_urls": [],
-      "date": "2026-06-03",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0015",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"bug: max_output_tokens setting doesn't work with Together.ai. **Version:** 0.8.2 ## Describe the Bug When Max Output Tokens is set (per #7799) using Together.ai (remote provider), Bad Request is returned. ## Steps to Reproduce 1. Configure a Togethe\"",
-      "quote": "bug: max_output_tokens setting doesn't work with Together.ai. **Version:** 0.8.2 ## Describe the Bug When Max Output Tokens is set (per #7799) using Together.ai (remote provider), Bad Request is returned. ## Steps to Reproduce 1. Configure a Togethe",
-      "category": "other",
-      "sentiment": "negative",
-      "author_handle": "brankoradovanovic-mcom",
-      "source": "github",
-      "source_url": "https://github.com/janhq/jan/issues/8267",
-      "corroborating_urls": [],
-      "date": "2026-06-03",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0016",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"` ## Classification `type:new-bug` / `type:provider` / `area:ai` / `area:backend` ## Problem During post-#159 production validation, a real Together AI + Qwen long-PDF chat turn did not hang and did not leak corrupted output, but it hit Humanly's 60s provider/agent timeout before producing a usef...\"",
-      "quote": "` ## Classification `type:new-bug` / `type:provider` / `area:ai` / `area:backend` ## Problem During post-#159 production validation, a real Together AI + Qwen long-PDF chat turn did not hang and did not leak corrupted output, but it hit Humanly's 60s provider/agent timeout before producing a usef...",
-      "category": "latency",
-      "sentiment": "negative",
-      "author_handle": "ShenzheZhu",
-      "source": "github",
-      "source_url": "https://github.com/ShenzheZhu/humanly/issues/161",
-      "corroborating_urls": [],
-      "date": "2026-05-17",
-      "verified": false,
-      "auto_collected": true
-    },
-    {
-      "id": "tg-0017",
-      "complaint": "Auto-collected GitHub mention referencing Together AI: \"Bug: Together AI model catalog parses as empty list. ## Problem\\nDuring QA #130 Phase 5, the production AI settings test endpoint returned success for Together AI but reported `Found 0 models`. Directly ch\"",
-      "quote": "Bug: Together AI model catalog parses as empty list. ## Problem\\nDuring QA #130 Phase 5, the production AI settings test endpoint returned success for Together AI but reported `Found 0 models`. Directly ch",
-      "category": "model_quality",
-      "sentiment": "negative",
-      "author_handle": "ShenzheZhu",
-      "source": "github",
-      "source_url": "https://github.com/ShenzheZhu/humanly/issues/131",
-      "corroborating_urls": [],
-      "date": "2026-05-17",
-      "verified": false,
-      "auto_collected": true
     }
   ]
 }

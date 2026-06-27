@@ -12,6 +12,9 @@ const http = require('node:http');
 let appMod = null;
 let loadError = null;
 try {
+  // Read the frozen 13-item fixture so scheduled data collection can't break
+  // the exact-count contract assertions below.
+  process.env.FEEDBACK_DATA_DIR = require('node:path').join(__dirname, 'fixtures', 'data');
   appMod = require('../backend/server');
 } catch (err) {
   loadError = err;
@@ -62,17 +65,17 @@ test('GET /api/health returns ok and item count', { skip }, async () => {
     const { status, body } = await getJson(port, '/api/health');
     assert.strictEqual(status, 200);
     assert.strictEqual(body.status, 'ok');
-    assert.strictEqual(body.items_loaded, 7);
-    assert.ok(Array.isArray(body.sources) && body.sources.length === 2);
+    assert.strictEqual(body.items_loaded, 13);
+    assert.ok(Array.isArray(body.sources) && body.sources.length === 6);
   });
 });
 
-test('GET /api/feedback (no filters) returns all 7 items with the contract shape', { skip }, async () => {
+test('GET /api/feedback (no filters) returns all 13 items with the contract shape', { skip }, async () => {
   await withServer(async (port) => {
     const { status, body } = await getJson(port, '/api/feedback');
     assert.strictEqual(status, 200);
-    assert.strictEqual(body.count, 7);
-    assert.strictEqual(body.items.length, 7);
+    assert.strictEqual(body.count, 13);
+    assert.strictEqual(body.items.length, 13);
     assert.ok('filters_applied' in body);
     assert.deepStrictEqual(body.filters_applied, {
       platform: null,
@@ -111,7 +114,7 @@ test('GET /api/feedback case-insensitive q', { skip }, async () => {
 
 test('GET /api/feedback empty result returns count 0 / empty items (not error)', { skip }, async () => {
   await withServer(async (port) => {
-    const { status, body } = await getJson(port, '/api/feedback?category=downtime');
+    const { status, body } = await getJson(port, '/api/feedback?category=rate_limits');
     assert.strictEqual(status, 200);
     assert.strictEqual(body.count, 0);
     assert.deepStrictEqual(body.items, []);
@@ -149,10 +152,10 @@ test('GET /api/summary returns documented aggregate shape', { skip }, async () =
   await withServer(async (port) => {
     const { status, body } = await getJson(port, '/api/summary');
     assert.strictEqual(status, 200);
-    assert.strictEqual(body.total, 7);
-    assert.deepStrictEqual(body.by_platform, { 'Together AI': 6, 'Fireworks AI': 1 });
+    assert.strictEqual(body.total, 13);
+    assert.deepStrictEqual(body.by_platform, { 'Together AI': 10, 'Fireworks AI': 3 });
     assert.deepStrictEqual(body.by_feedback_type, {
-      complaint: 6,
+      complaint: 12,
       question: 0,
       feature_request: 1,
       positive: 0,

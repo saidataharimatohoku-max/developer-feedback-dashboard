@@ -4,6 +4,10 @@ const test = require('node:test');
 const assert = require('node:assert');
 
 const { loadRaw } = require('../backend/loader');
+const path = require('node:path');
+
+// Frozen 13-item dataset so scheduled HN collection can't break these tests.
+const FIXTURE_DIR = path.join(__dirname, 'fixtures', 'data');
 const {
   normalizeAll,
   normalize,
@@ -29,6 +33,7 @@ const REQUIRED_FIELDS = [
   'author_handle',
   'date',
   'verified',
+  'auto_collected',
 ];
 
 test('slugify maps provider names to slugs', () => {
@@ -52,7 +57,7 @@ test('normalizer maps empty strings to null', () => {
 });
 
 test('feedback_type worked examples from ARCHITECTURE.md §3.1', () => {
-  const items = normalizeAll(loadRaw());
+  const items = normalizeAll(loadRaw(FIXTURE_DIR));
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
 
   assert.strictEqual(byId['tg-0001'].feedback_type, 'feature_request');
@@ -68,16 +73,16 @@ test('feedback_type rule ordering: question cue beats feature cue', () => {
 });
 
 test('all items load with valid provider slugs', () => {
-  const items = normalizeAll(loadRaw());
-  assert.strictEqual(items.length, 7);
+  const items = normalizeAll(loadRaw(FIXTURE_DIR));
+  assert.strictEqual(items.length, 13);
   assert.ok(items.every((i) => i.provider_slug === 'together-ai' || i.provider_slug === 'fireworks-ai'));
 });
 
 // ---------------------------------------------------------------------------
-// feedback_type mapping for every real item (6 Together + 1 Fireworks).
+// feedback_type mapping for every real item (10 Together + 3 Fireworks).
 // ---------------------------------------------------------------------------
-test('feedback_type is correct for all 7 real items', () => {
-  const items = normalizeAll(loadRaw());
+test('feedback_type is correct for all 13 real items', () => {
+  const items = normalizeAll(loadRaw(FIXTURE_DIR));
   const byId = Object.fromEntries(items.map((i) => [i.id, i]));
 
   const expected = {
@@ -87,7 +92,13 @@ test('feedback_type is correct for all 7 real items', () => {
     'tg-0004': 'complaint', // latency/mixed, category in complaint set -> rule 3
     'tg-0005': 'complaint', // pricing/negative -> rule 3
     'tg-0006': 'complaint', // other/negative -> rule 3 (sentiment)
-    'fw-0001': 'complaint', // pricing/negative -> rule 3
+    'tg-0007': 'complaint', // pricing/negative -> rule 3
+    'tg-0008': 'complaint', // downtime/negative -> rule 3
+    'tg-0009': 'complaint', // pricing/mixed, category in complaint set -> rule 3
+    'tg-0010': 'complaint', // downtime/neutral, category in complaint set -> rule 3
+    'fw-0001': 'complaint', // billing/negative -> rule 3
+    'fw-0002': 'complaint', // model_quality/mixed, category in complaint set -> rule 3
+    'fw-0003': 'complaint', // pricing/mixed, category in complaint set -> rule 3
   };
 
   for (const [id, ft] of Object.entries(expected)) {
@@ -197,7 +208,7 @@ test('verified passthrough: only literal true is true', () => {
 // Schema conformance: every real item has all required fields + valid enums.
 // ---------------------------------------------------------------------------
 test('every normalized item conforms to the canonical schema', () => {
-  const items = normalizeAll(loadRaw());
+  const items = normalizeAll(loadRaw(FIXTURE_DIR));
   for (const it of items) {
     for (const field of REQUIRED_FIELDS) {
       assert.ok(Object.prototype.hasOwnProperty.call(it, field), `${it.id} missing field ${field}`);

@@ -11,8 +11,12 @@ const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
 
 // ---------------------------------------------------------------------------
 // Build the in-memory store once at startup (ARCHITECTURE.md §5).
+// FEEDBACK_DATA_DIR overrides the data directory (used by the HTTP tests to
+// read a frozen fixture so scheduled data collection can't break assertions).
 // ---------------------------------------------------------------------------
-const store = createStore();
+const store = process.env.FEEDBACK_DATA_DIR
+  ? createStore({ dataDir: process.env.FEEDBACK_DATA_DIR })
+  : createStore();
 store.load();
 
 // ---------------------------------------------------------------------------
@@ -88,6 +92,72 @@ function handleFeedback(query, res) {
   sendJson(res, 200, { count: items.length, filters_applied: filters, items });
 }
 
+// CSV column order for the export. Mirrors the canonical item fields most
+// useful to a non-technical stakeholder opening the file in Excel.
+const CSV_COLUMNS = [
+  'id',
+  'provider',
+  'feedback_type',
+  'category',
+  'sentiment',
+  'date',
+  'summary',
+  'original_text',
+  'source',
+  'source_url',
+  'verified',
+  'auto_collected',
+];
+
+function csvCell(value) {
+  if (value == null) return '';
+  const s = String(value);
+  // Quote when the value contains a delimiter, quote, or newline (RFC 4180).
+  if (/[",\r\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+function toCsv(items) {
+  const header = CSV_COLUMNS.join(',');
+  const rows = items.map((it) => CSV_COLUMNS.map((c) => csvCell(it[c])).join(','));
+  return [header, ...rows].join('\r\n');
+}
+
+function handleFeedbackCsv(query, res) {
+  const platform = query.get('platform');
+  const feedbackType = query.get('feedback_type');
+  const category = query.get('category');
+  const q = query.get('q');
+
+  if (platform != null && !store.knownPlatform(platform)) {
+    return sendJson(res, 400, { error: 'invalid platform', allowed: Array.from(store.platforms) });
+  }
+  if (feedbackType != null && !store.FEEDBACK_TYPES.includes(String(feedbackType).toLowerCase())) {
+    return sendJson(res, 400, { error: 'invalid feedback_type', allowed: store.FEEDBACK_TYPES });
+  }
+  if (category != null && !store.CATEGORIES.includes(String(category).toLowerCase())) {
+    return sendJson(res, 400, { error: 'invalid category', allowed: store.CATEGORIES });
+  }
+
+  const items = store.filter({
+    platform: platform != null ? String(platform) : null,
+    feedback_type: feedbackType != null ? String(feedbackType) : null,
+    category: category != null ? String(category) : null,
+    q: q != null ? String(q) : null,
+  });
+
+  // Prepend a UTF-8 BOM so Excel renders accents/symbols correctly.
+  const body = '\uFEFF' + toCsv(items);
+  res.writeHead(200, {
+    'Content-Type': 'text/csv; charset=utf-8',
+    'Content-Disposition': 'attachment; filename="developer-feedback.csv"',
+    'Content-Length': Buffer.byteLength(body),
+  });
+  res.end(body);
+}
+
 function handleSummary(query, res) {
   const platform = query.get('platform');
   if (platform != null && !store.knownPlatform(platform)) {
@@ -106,6 +176,11 @@ function requestHandler(req, res) {
     return sendJson(res, 405, { error: 'method not allowed' });
   }
 
+  // Pick up data refreshed on disk (by the background collector) without a restart.
+  if (pathname.startsWith('/api/')) {
+    store.reloadIfChanged();
+  }
+
   if (pathname === '/api/health') {
     return sendJson(res, 200, {
       status: 'ok',
@@ -115,6 +190,9 @@ function requestHandler(req, res) {
   }
   if (pathname === '/api/feedback') {
     return handleFeedback(query, res);
+  }
+  if (pathname === '/api/feedback.csv') {
+    return handleFeedbackCsv(query, res);
   }
   if (pathname === '/api/summary') {
     return handleSummary(query, res);

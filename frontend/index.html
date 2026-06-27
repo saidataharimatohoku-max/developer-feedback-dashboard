@@ -3,16 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Developer Feedback Dashboard — Together AI &amp; Fireworks AI</title>
+    <title>Developer Feedback Dashboard — Together AI, Fireworks AI, Tinker API, Azure Kubernetes Service, Azure Machine Learning &amp; OpenAI</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
       <h1>Developer Feedback Dashboard</h1>
-      <p class="subtitle">Together AI &amp; Fireworks AI</p>
+      <p class="subtitle">Together AI · Fireworks AI · Tinker API · Azure Kubernetes Service (DIY) · Azure Machine Learning · OpenAI</p>
     </header>
 
     <main class="container">
+      <!-- ============ Top issue callout ============ -->
+      <div class="top-issue-banner" id="top-issue" role="status" hidden></div>
+
+      <!-- ============ Executive Summary ============ -->
+      <section class="exec-summary" aria-labelledby="exec-summary-heading">
+        <h2 id="exec-summary-heading">Executive Summary</h2>
+        <div id="exec-summary-body" class="exec-summary-body" aria-live="polite">
+          <!-- narrative injected from /api/summary -->
+        </div>
+        <p class="last-updated" id="last-updated" aria-live="polite"></p>
+      </section>
+
       <!-- ============ Summary / Trends ============ -->
       <section class="summary" aria-labelledby="summary-heading">
         <h2 id="summary-heading">Summary &amp; Trends</h2>
@@ -22,8 +34,9 @@
         </div>
 
         <p class="chart-note">
-          Charts are generated from local <code>data/*.json</code> only — no live
-          APIs or scraping.
+          Charts are served live from the backend API, which reads stored
+          feedback in <code>data/*.json</code> — refreshed automatically every
+          day from public Hacker News posts.
         </p>
 
         <div class="charts-grid">
@@ -52,6 +65,54 @@
         </div>
       </section>
 
+      <!-- ============ Trends over time ============ -->
+      <section class="trends" aria-labelledby="trends-heading">
+        <div class="trends-head">
+          <h2 id="trends-heading">Trends over time</h2>
+          <div class="trends-toggle">
+            <label for="trend-breakdown">Break down by</label>
+            <select id="trend-breakdown">
+              <option value="platform">Provider</option>
+              <option value="category">Category</option>
+            </select>
+          </div>
+        </div>
+        <p class="chart-note">
+          Monthly feedback volume split by provider or by issue category — so you
+          can spot which provider, or which kind of problem, is trending up or
+          down over time.
+        </p>
+        <figure class="chart-card chart-card-wide">
+          <figcaption id="trend-breakdown-caption">Feedback per month by provider</figcaption>
+          <div class="chart" id="chart-breakdown" role="img"
+            aria-label="Multi-line chart of feedback count per month, broken down by provider or category"></div>
+        </figure>
+      </section>
+
+      <!-- ============ Provider comparison ============ -->
+      <section class="comparison" aria-labelledby="comparison-heading">
+        <h2 id="comparison-heading">Provider comparison</h2>
+        <p class="chart-note">
+          Feedback by category, side by side — so you can see at a glance which
+          provider draws more complaints in each area.
+        </p>
+        <div class="comparison-table" id="comparison-table"></div>
+      </section>
+
+      <!-- ============ Sentiment over time ============ -->
+      <section class="sentiment" aria-labelledby="sentiment-heading">
+        <h2 id="sentiment-heading">Sentiment over time</h2>
+        <p class="chart-note">
+          How the tone of developer feedback (negative, mixed, neutral or
+          positive) shifts month over month.
+        </p>
+        <figure class="chart-card chart-card-wide">
+          <figcaption>Feedback sentiment by month</figcaption>
+          <div class="chart" id="chart-sentiment" role="img"
+            aria-label="Stacked bar chart of feedback sentiment by month"></div>
+        </figure>
+      </section>
+
       <!-- ============ Filters ============ -->
       <section class="filters" aria-labelledby="filters-heading">
         <h2 id="filters-heading" class="visually-hidden">Filters</h2>
@@ -62,6 +123,10 @@
               <option value="">All platforms</option>
               <option value="together-ai">Together AI</option>
               <option value="fireworks-ai">Fireworks AI</option>
+              <option value="tinker-api">Tinker API</option>
+              <option value="azure-kubernetes-service">Azure Kubernetes Service</option>
+              <option value="azure-machine-learning">Azure Machine Learning</option>
+              <option value="openai">OpenAI</option>
             </select>
           </div>
 
@@ -103,7 +168,11 @@
       <section class="feedback" aria-labelledby="feedback-heading">
         <div class="feedback-header">
           <h2 id="feedback-heading">Feedback</h2>
-          <span class="result-count" id="result-count" aria-live="polite"></span>
+          <div class="feedback-actions">
+            <span class="result-count" id="result-count" aria-live="polite"></span>
+            <button type="button" class="export-btn" id="export-csv" title="Download the current view as a CSV (opens in Excel)">⬇ CSV</button>
+            <button type="button" class="export-btn" id="export-json" title="Download the current view as JSON">⬇ JSON</button>
+          </div>
         </div>
         <div class="card-grid" id="card-grid"></div>
         <p class="empty-state" id="empty-state" hidden>
