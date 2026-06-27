@@ -1,6 +1,8 @@
 # Developer Feedback Dashboard — Data Sources & Status
 
-_As of 2026-06-26_
+<!-- AUTOSTATS:DATE:START -->
+_As of 2026-06-27_
+<!-- AUTOSTATS:DATE:END -->
 
 The dashboard tracks public developer feedback about **Together AI**, **Fireworks AI**,
 **Tinker API** (the model fine-tuning API from Thinking Machines Lab), **Azure Kubernetes
@@ -8,9 +10,9 @@ Service** (included as the self-hosted / do-it-yourself (DIY) way to run models)
 Machine Learning** — Microsoft's managed ML platform for model training and managed online
 endpoints (inference) — and the **OpenAI API** (api.openai.com), OpenAI's hosted inference API
 for chat/Responses, embeddings, audio, images, and the Realtime API.
-It currently displays **104 items** — **37 hand-curated** (10 Together AI, 3 Fireworks AI,
-11 Azure Machine Learning, 13 OpenAI) plus **67 auto-collected** (15 from Hacker News,
-52 from GitHub issues). Every item is linked to its original public source.
+<!-- AUTOSTATS:COUNTS:START -->
+It currently displays **129 items** — **37 hand-curated** (10 Together AI, 3 Fireworks AI, 11 Azure Machine Learning, 13 OpenAI) plus **92 auto-collected** (15 from Hacker News, 77 from GitHub issues). Every item is linked to its original public source.
+<!-- AUTOSTATS:COUNTS:END -->
 
 ---
 
@@ -75,8 +77,8 @@ all pull live data from the API — confirmed working end to end.
 
 ## Data quality & honesty
 
-- **Hand-curated items** (37) are written and source-cited by hand.
-- **Auto-collected items** (67) carry a yellow **"⚙ Auto · unverified"** badge so they are clearly
+- **Hand-curated items** are written and source-cited by hand.
+- **Auto-collected items** carry a yellow **"⚙ Auto · unverified"** badge so they are clearly
   distinguishable. They use keyword-based category/sentiment and are coarser than the curated items.
 - Hacker News is noisy — many matches are general market/pricing discussions that merely mention a
   provider — so auto items may include some off-topic results. GitHub collection is kept precise by

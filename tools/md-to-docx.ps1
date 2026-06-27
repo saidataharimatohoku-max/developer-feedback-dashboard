@@ -61,6 +61,7 @@ function Flush() {
 foreach ($raw in $lines) {
     $line = $raw.TrimEnd()
     if ($line -eq '') { Flush; continue }
+    if ($line -match '^<!--') { Flush; continue }  # skip HTML comment / auto-stats markers
     if ($line -eq '---') { Flush; [void]$blocks.Add(@{ type = 'hr'; text = '' }); continue }
     if ($line -match '^# ') { Flush; [void]$blocks.Add(@{ type = 'h1'; text = $line.Substring(2) }); continue }
     if ($line -match '^## ') { Flush; [void]$blocks.Add(@{ type = 'h2'; text = $line.Substring(3) }); continue }

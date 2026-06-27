@@ -549,6 +549,101 @@ async function refreshProvider(cfg, sinceUnix) {
   return { provider: cfg.provider, scanned: candidates.length, added: added.length, ids: added.map((a) => a.id) };
 }
 
+// --- Keep DATA_SOURCES_SUMMARY.{md,docx} in sync with the live data ----------
+// Recomputes the volatile counts straight from data/*.json, rewrites the marked
+// blocks in the Markdown, then rebuilds the Word .docx (Windows only). The
+// hand-written narrative is left untouched — only the auto-stats markers move.
+const ROOT_DIR = path.join(__dirname, '..');
+const SUMMARY_MD = path.join(ROOT_DIR, 'DATA_SOURCES_SUMMARY.md');
+const SUMMARY_DOCX = 'DATA_SOURCES_SUMMARY.docx';
+// Provider display order + the JSON file each lives in (mirrors PROVIDERS).
+const DOC_SOURCE_LABELS = { hackernews: 'Hacker News', github: 'GitHub issues', reddit: 'Reddit' };
+
+function replaceBetween(text, startMarker, endMarker, replacement) {
+  const rx = new RegExp(
+    `(${startMarker}\\r?\\n)[\\s\\S]*?(\\r?\\n${endMarker})`,
+  );
+  if (!rx.test(text)) return text;
+  return text.replace(rx, `$1${replacement}$2`);
+}
+
+function computeDocStats() {
+  let total = 0;
+  const curatedByProvider = []; // { provider, count } in PROVIDERS order
+  const autoBySource = {};
+  for (const cfg of PROVIDERS) {
+    let curated = 0;
+    try {
+      const data = JSON.parse(fs.readFileSync(path.join(DATA_DIR, cfg.file), 'utf8'));
+      const complaints = Array.isArray(data.complaints) ? data.complaints : [];
+      for (const c of complaints) {
+        total += 1;
+        if (c.auto_collected) {
+          autoBySource[c.source] = (autoBySource[c.source] || 0) + 1;
+        } else {
+          curated += 1;
+        }
+      }
+    } catch (_) {
+      /* missing/unreadable provider file — skip it */
+    }
+    if (curated > 0) curatedByProvider.push({ provider: cfg.provider, count: curated });
+  }
+  const curatedTotal = curatedByProvider.reduce((s, p) => s + p.count, 0);
+  const autoTotal = Object.values(autoBySource).reduce((s, n) => s + n, 0);
+  return { total, curatedTotal, autoTotal, curatedByProvider, autoBySource };
+}
+
+function buildCountsSentence(stats) {
+  const curatedList = stats.curatedByProvider
+    .map((p) => `${p.count} ${p.provider}`)
+    .join(', ');
+  const sourceOrder = ['hackernews', 'github', 'reddit'];
+  const autoList = Object.keys(stats.autoBySource)
+    .sort((a, b) => sourceOrder.indexOf(a) - sourceOrder.indexOf(b))
+    .map((s) => `${stats.autoBySource[s]} from ${DOC_SOURCE_LABELS[s] || s}`)
+    .join(', ');
+  const curatedPart = curatedList ? ` (${curatedList})` : '';
+  const autoPart = autoList ? ` (${autoList})` : '';
+  return (
+    `It currently displays **${stats.total} items** — ` +
+    `**${stats.curatedTotal} hand-curated**${curatedPart} plus ` +
+    `**${stats.autoTotal} auto-collected**${autoPart}. ` +
+    `Every item is linked to its original public source.`
+  );
+}
+
+function regenerateDoc() {
+  let md;
+  try {
+    md = fs.readFileSync(SUMMARY_MD, 'utf8');
+  } catch (_) {
+    return; // no summary file to maintain
+  }
+  const stats = computeDocStats();
+  const today = new Date().toISOString().slice(0, 10);
+  md = replaceBetween(md, '<!-- AUTOSTATS:DATE:START -->', '<!-- AUTOSTATS:DATE:END -->', `_As of ${today}_`);
+  md = replaceBetween(md, '<!-- AUTOSTATS:COUNTS:START -->', '<!-- AUTOSTATS:COUNTS:END -->', buildCountsSentence(stats));
+  fs.writeFileSync(SUMMARY_MD, md, 'utf8');
+  console.log(`[refresh] summary updated — ${stats.total} items (${stats.curatedTotal} curated, ${stats.autoTotal} auto).`);
+
+  if (process.platform !== 'win32') return; // .docx rebuild needs PowerShell
+  try {
+    const { spawnSync } = require('child_process');
+    const r = spawnSync(
+      'powershell',
+      ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+        path.join(__dirname, 'md-to-docx.ps1'),
+        '-In', 'DATA_SOURCES_SUMMARY.md', '-Out', SUMMARY_DOCX],
+      { cwd: ROOT_DIR, encoding: 'utf8' },
+    );
+    if (r.status === 0) console.log('[refresh] DATA_SOURCES_SUMMARY.docx rebuilt.');
+    else console.warn(`  [warn] docx rebuild skipped (PowerShell exit ${r.status}).`);
+  } catch (err) {
+    console.warn(`  [warn] docx rebuild skipped: ${err.message}`);
+  }
+}
+
 async function main() {
   if (typeof fetch !== 'function') {
     console.error('global fetch is unavailable; Node 18+ is required.');
@@ -570,6 +665,9 @@ async function main() {
     console.log(`  ${r.provider}: scanned ${r.scanned} candidates, added ${r.added}${r.added ? ' (' + r.ids.join(', ') + ')' : ''}`);
   }
   console.log(`[refresh] done — ${totalAdded} new item(s). The running dashboard will pick these up automatically.`);
+
+  // Keep the data-sources summary (md + docx) in step with the live data.
+  regenerateDoc();
 }
 
 main().catch((err) => {
