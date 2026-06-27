@@ -1,15 +1,16 @@
 # Developer Feedback Dashboard — Data Sources & Status
 
-_As of 2026-06-27_
+_As of 2026-06-26_
 
 The dashboard tracks public developer feedback about **Together AI**, **Fireworks AI**,
 **Tinker API** (the model fine-tuning API from Thinking Machines Lab), **Azure Kubernetes
-Service** (included as the self-hosted / do-it-yourself (DIY) way to run models), and **Azure
+Service** (included as the self-hosted / do-it-yourself (DIY) way to run models), **Azure
 Machine Learning** — Microsoft's managed ML platform for model training and managed online
-endpoints (inference) — in contrast to the three independent managed inference APIs.
-It currently displays **84 items** — **13 hand-verified** (10 Together AI, 3 Fireworks AI) plus
-**71 auto-collected** (15 from Hacker News, 56 from GitHub issues). Every item is linked to its
-original public source.
+endpoints (inference) — and the **OpenAI API** (api.openai.com), OpenAI's hosted inference API
+for chat/Responses, embeddings, audio, images, and the Realtime API.
+It currently displays **104 items** — **37 hand-curated** (10 Together AI, 3 Fireworks AI,
+11 Azure Machine Learning, 13 OpenAI) plus **67 auto-collected** (15 from Hacker News,
+52 from GitHub issues). Every item is linked to its original public source.
 
 ---
 
@@ -31,7 +32,7 @@ original public source.
 
 ### 3. Automation (self-updating)
 - **Daily data refresh** — a Windows scheduled task (`DevFeedbackDashboard-DailyRefresh`) runs each
-  morning at 9:00 AM, pulls new **Hacker News** and **GitHub issue** mentions of all five providers,
+  morning at 9:00 AM, pulls new **Hacker News** and **GitHub issue** mentions of all six providers,
   removes duplicates, and adds any new items.
 - **Auto-start server** — a second scheduled task (`DevFeedbackDashboard-StartServer`) launches the
   dashboard at login, so http://localhost:3000 is always available.
@@ -54,11 +55,15 @@ original public source.
 - **"Most common issue" callout** — a headline banner highlighting the top complaint category in the
   most recent month (e.g. _"pricing — 3 reports in Jun 2026"_).
 - **Provider comparison** — a side-by-side **Together AI vs Fireworks AI vs Tinker API vs Azure
-  Kubernetes Service** view of feedback by category, so you can instantly see which provider draws
-  more complaints in each area.
+  Kubernetes Service vs Azure Machine Learning vs OpenAI** view of feedback by category, so you can
+  instantly see which provider draws more complaints in each area.
 - **CSV / JSON export** — "download this data" buttons (CSV opens cleanly in Excel; JSON for
   developers). Exports respect the active filters.
 - **"Last updated" timestamp** — shows when the data was last refreshed, reinforcing that it is live.
+- **Guided demo mode** — an opt-in **▶ Demo** button (and `?demo=1` URL) plays a self-driving,
+  captioned auto-tour of the whole dashboard (scrolling, spotlighting each section, toggling the
+  trend breakdown, filtering, searching, and exporting) so the project can be screen-recorded
+  hands-free. It uses the real filters and leaves the normal experience untouched.
 
 ---
 
@@ -70,7 +75,7 @@ all pull live data from the API — confirmed working end to end.
 
 ## Data quality & honesty
 
-- **Verified items** (13) are hand-curated and source-cited.
+- **Hand-curated items** (37) are written and source-cited by hand.
 - **Auto-collected items** (67) carry a yellow **"⚙ Auto · unverified"** badge so they are clearly
   distinguishable. They use keyword-based category/sentiment and are coarser than the curated items.
 - Hacker News is noisy — many matches are general market/pricing discussions that merely mention a
@@ -112,7 +117,7 @@ all pull live data from the API — confirmed working end to end.
 
 ## Quality safeguards
 
-- The automated test suite (**48 tests**) passes. Tests read a frozen copy of the curated 13-item
+- The automated test suite (**50 tests**) passes. Tests read a frozen copy of a curated fixture
   dataset, so daily collection can never break them.
 - All data is public, source-cited, and presented as user-reported.
 
@@ -139,10 +144,11 @@ The entire project is backed up to **OneDrive**, so it is no longer a single cop
 
 The dashboard is connected to its API, serving live data, and maintains itself — refreshing from a
 full year of Hacker News and GitHub issues daily and restarting automatically at login. It now
-tracks five providers (Together AI, Fireworks AI, Tinker API, Azure Kubernetes Service — the
-self-hosted / DIY option — and Azure Machine Learning, Microsoft's managed ML platform). On top of the core MVP it now
+tracks six providers (Together AI, Fireworks AI, Tinker API, Azure Kubernetes Service — the
+self-hosted / DIY option —, Azure Machine Learning — Microsoft's managed ML platform — and the
+OpenAI API). On top of the core MVP it now
 includes an auto-written executive summary, a sentiment-over-time chart, a
-"most common issue" callout, a side-by-side provider comparison, CSV/JSON export, and a last-updated
-timestamp. Hacker News, GitHub issues, and the official status pages are the feedback sources
+"most common issue" callout, a side-by-side provider comparison, CSV/JSON export, a last-updated
+timestamp, and a one-click guided demo / auto-tour for screen recordings. Hacker News, GitHub issues, and the official status pages are the feedback sources
 feeding it right now; the remaining sources are researched and ready to wire in once access
 constraints (OAuth tokens, paid API tiers) are resolved.
