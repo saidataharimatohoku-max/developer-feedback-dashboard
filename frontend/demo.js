@@ -223,6 +223,18 @@
         background: rgba(8, 12, 22, .72); color: #fff;
         font: 800 120px/1 system-ui, sans-serif; backdrop-filter: blur(2px);
       }
+      #demo-toast {
+        position: fixed; left: 50%; bottom: 110px;
+        transform: translateX(-50%) translateY(10px);
+        z-index: 10002; max-width: min(560px, calc(100vw - 40px));
+        background: #111827; color: #f8fafc;
+        border: 1px solid rgba(255,255,255,.16); border-radius: 10px;
+        padding: 12px 16px; font: 14px/1.5 system-ui, sans-serif;
+        box-shadow: 0 10px 30px rgba(0,0,0,.45);
+        opacity: 0; pointer-events: none;
+        transition: opacity .2s ease, transform .2s ease;
+      }
+      #demo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
       @media (prefers-reduced-motion: reduce) {
         .demo-spotlight { transition: none; }
         #demo-progress > span { transition: none; }
@@ -388,6 +400,21 @@
   let mediaRecorder = null;
   let recordedChunks = [];
 
+  // On-page message that works even where alert() is suppressed (e.g. embedded
+  // preview panes). Auto-dismisses.
+  function showToast(msg, ms = 5000) {
+    let t = document.getElementById('demo-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'demo-toast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), ms);
+  }
+
   function pickRecorderOptions() {
     const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
     for (const m of candidates) {
@@ -415,16 +442,42 @@
 
   async function startWithRecording() {
     if (running) return;
+
+    // Immediate feedback so a click is never "nothing happening".
+    showToast('Starting recording… choose a source and click “Share”.', 8000);
+
+    // Feature / context checks with clear feedback instead of failing silently.
+    if (!window.isSecureContext) {
+      showToast('Recording needs a secure page. Open http://localhost:3000 in a real browser (not a preview pane).', 9000);
+      return;
+    }
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia)) {
+      showToast('This view can’t record the screen. Open http://localhost:3000 in Chrome, Edge or Firefox — not the VS Code preview.', 9000);
+      return;
+    }
+
+    // One call, minimal options. `preferCurrentTab` pre-selects this tab on
+    // Chromium and is harmlessly ignored elsewhere. A single call keeps the
+    // user gesture valid (a retry after an await can lose it).
     let stream;
     try {
       stream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: 30 },
         audio: false,
+        preferCurrentTab: true,
       });
     } catch (err) {
-      // User cancelled the share prompt, or it is unavailable — do nothing.
+      // NotAllowedError = the user dismissed/denied the picker: stay silent.
+      if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) {
+        showToast('Recording cancelled.', 3000);
+        return;
+      }
+      console.error('[demo] recording failed:', err);
+      showToast('Could not start recording: ' + (err && err.message ? err.message : String(err)), 9000);
       return;
     }
+
+    showToast('Recording… the demo is playing. Your video downloads when it finishes.', 6000);
 
     recordedChunks = [];
     try {
@@ -472,7 +525,7 @@
       rec.id = 'demo-record';
       rec.type = 'button';
       rec.textContent = '⏺ Record';
-      rec.title = 'Record the guided tour to a downloadable .webm video';
+      rec.title = 'Record the whole dashboard: click, then choose “This tab” and Share. The demo plays and a .webm downloads at the end.';
       rec.addEventListener('click', startWithRecording);
       document.body.appendChild(rec);
     }
