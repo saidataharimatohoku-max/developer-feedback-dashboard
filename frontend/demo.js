@@ -172,6 +172,16 @@
       #demo-launch:hover { background: #5878f0; transform: translateY(-1px); }
       #demo-launch[hidden] { display: none; }
 
+      #demo-record {
+        position: fixed; right: 18px; bottom: 62px; z-index: 9998;
+        font: 600 14px/1 system-ui, sans-serif; color: #fff;
+        background: #ef4444; border: none; border-radius: 999px;
+        padding: 11px 16px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+        transition: transform .15s ease, background .15s ease;
+      }
+      #demo-record:hover { background: #dc2626; transform: translateY(-1px); }
+      #demo-record[hidden] { display: none; }
+
       #demo-overlay {
         position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
         z-index: 10000; width: min(760px, calc(100vw - 40px));
@@ -311,6 +321,8 @@
     running = true;
     stopRequested = false;
     qs('#demo-launch').hidden = true;
+    const recBtn = qs('#demo-record');
+    if (recBtn) recBtn.hidden = true;
     document.addEventListener('keydown', onKey, true);
 
     buildOverlay();
@@ -362,7 +374,83 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const launch = qs('#demo-launch');
     if (launch) launch.hidden = false;
+    const recBtn = qs('#demo-record');
+    if (recBtn) recBtn.hidden = false;
     running = false;
+  }
+
+  // -------------------------------------------------------------------------
+  // Optional screen recording — captures the guided tour to a .webm the browser
+  // downloads at the end. Uses getDisplayMedia (needs a user gesture + the
+  // browser's "choose what to share" prompt) + MediaRecorder. If the user
+  // cancels the share prompt, nothing happens.
+  // -------------------------------------------------------------------------
+  let mediaRecorder = null;
+  let recordedChunks = [];
+
+  function pickRecorderOptions() {
+    const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    for (const m of candidates) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return { mimeType: m };
+    }
+    return undefined;
+  }
+
+  function timestamp() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+  }
+
+  function downloadBlob(blob, name) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
+  async function startWithRecording() {
+    if (running) return;
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 30 },
+        audio: false,
+      });
+    } catch (err) {
+      // User cancelled the share prompt, or it is unavailable — do nothing.
+      return;
+    }
+
+    recordedChunks = [];
+    try {
+      mediaRecorder = new MediaRecorder(stream, pickRecorderOptions());
+    } catch (err) {
+      mediaRecorder = new MediaRecorder(stream);
+    }
+
+    mediaRecorder.ondataavailable = (ev) => {
+      if (ev.data && ev.data.size) recordedChunks.push(ev.data);
+    };
+    mediaRecorder.onstop = () => {
+      const type = (mediaRecorder && mediaRecorder.mimeType) || 'video/webm';
+      const blob = new Blob(recordedChunks, { type });
+      if (blob.size) downloadBlob(blob, `dashboard-demo-${timestamp()}.webm`);
+      stream.getTracks().forEach((t) => t.stop());
+      mediaRecorder = null;
+    };
+
+    // If the user ends screen-sharing from the browser's own UI, stop the tour.
+    const vtrack = stream.getVideoTracks()[0];
+    if (vtrack) vtrack.addEventListener('ended', () => { if (running) stop(); });
+
+    mediaRecorder.start();
+    await start(); // runs the tour; resolves when it finishes or is stopped
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   }
 
   // -------------------------------------------------------------------------
@@ -377,6 +465,17 @@
     btn.title = 'Play the guided auto-tour (great for screen recordings)';
     btn.addEventListener('click', start);
     document.body.appendChild(btn);
+
+    // Add a "Record" button only where screen capture + MediaRecorder exist.
+    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder) {
+      const rec = document.createElement('button');
+      rec.id = 'demo-record';
+      rec.type = 'button';
+      rec.textContent = '⏺ Record';
+      rec.title = 'Record the guided tour to a downloadable .webm video';
+      rec.addEventListener('click', startWithRecording);
+      document.body.appendChild(rec);
+    }
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('demo') === '1' || window.location.hash === '#demo') {

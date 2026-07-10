@@ -12,6 +12,7 @@ Thumbs.db
 
 # Large demo recordings — kept in zip backups, not in git history
 *.mp4
+*.webm
 
 # Secrets — never commit real API credentials
 tools/reddit-credentials.json
