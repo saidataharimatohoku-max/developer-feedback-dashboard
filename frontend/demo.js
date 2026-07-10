@@ -22,7 +22,7 @@
   const STEPS = [
     {
       sel: '.site-header',
-      ms: 6500,
+      ms: 6000,
       caption:
         'Developer Feedback Dashboard — a local, zero-dependency app that ' +
         'monitors PUBLIC developer feedback about six AI / ML providers.',
@@ -32,17 +32,12 @@
       ms: 6500,
       caption:
         'The Executive Summary is generated from the data: total items, how ' +
-        'many are complaints, and the most common issues — refreshed daily.',
+        'many are complaints, and the top issues — refreshed daily.',
     },
     {
       sel: '#stat-cards',
-      ms: 5000,
+      ms: 4500,
       caption: 'Headline stat cards: total feedback, broken down per provider.',
-    },
-    {
-      sel: '#chart-platform',
-      ms: 5000,
-      caption: 'Feedback by platform — which provider draws the most chatter.',
     },
     {
       sel: '#chart-type',
@@ -50,13 +45,56 @@
       caption: 'Feedback by type — complaints vs. questions, requests and praise.',
     },
     {
-      sel: '#chart-trend',
+      sel: '#tc-type',
+      ms: 6000,
+      action: { type: 'select', value: 'question' },
+      caption:
+        'Pick a feedback type — here, Questions — and the chart re-renders to ' +
+        'show what THAT type is about, broken down by issue category.',
+    },
+    {
+      sel: '#chart-type-category',
+      ms: 4000,
+      caption: 'Each bar is an issue category for the selected feedback type.',
+    },
+    {
+      sel: '#filters-heading',
+      ms: 5000,
+      caption:
+        'The Explore area — filter the whole dataset by platform, type, source, ' +
+        'sentiment, verification, date or keyword.',
+    },
+    {
+      sel: '#filter-platform',
       ms: 4500,
-      caption: 'Trend by month — overall feedback volume over time.',
+      action: { type: 'select', value: 'openai' },
+      caption:
+        'Pick a product — say OpenAI — and the chart, stats and list below all ' +
+        'update instantly.',
+    },
+    {
+      sel: '#fv-chart',
+      ms: 5500,
+      caption:
+        'The live chart shows the selected product broken down by issue category ' +
+        '(or a product-by-product comparison when "All platforms" is selected).',
+    },
+    {
+      sel: '#fv-stats',
+      ms: 5500,
+      caption:
+        'Per-product stats: total, complaints, verified count, top category, and ' +
+        'a heuristic concern score.',
+    },
+    {
+      sel: '#filter-q',
+      ms: 5500,
+      action: { type: 'type', value: 'rate limit' },
+      caption: 'Full-text search runs across both the summary and the original text.',
     },
     {
       sel: '#trend-breakdown',
-      ms: 6500,
+      ms: 6000,
       action: { type: 'select', value: 'category' },
       caption:
         'In Trends over time, switch the breakdown from Provider to Category — ' +
@@ -64,7 +102,7 @@
     },
     {
       sel: '#chart-breakdown',
-      ms: 4500,
+      ms: 4000,
       caption: 'Each line is one issue category, charted month over month.',
     },
     {
@@ -74,31 +112,20 @@
         'Provider comparison — complaint counts per category, side by side.',
     },
     {
+      sel: '#health-cards',
+      ms: 5500,
+      caption:
+        'Provider health — a concern score per provider from feedback volume, ' +
+        'verified downtime and recent momentum, with a spike marker.',
+    },
+    {
       sel: '#chart-sentiment',
-      ms: 5000,
+      ms: 4500,
       caption: 'Sentiment over time — how the tone of feedback shifts each month.',
     },
     {
-      sel: '#filter-platform',
-      ms: 4500,
-      action: { type: 'select', value: 'openai' },
-      caption: 'Now the filters. Pick a provider — say OpenAI — and the list narrows instantly.',
-    },
-    {
-      sel: '#filter-feedback-type',
-      ms: 4000,
-      action: { type: 'select', value: 'complaint' },
-      caption: 'Stack another filter on top: show only complaints.',
-    },
-    {
-      sel: '#filter-q',
-      ms: 5500,
-      action: { type: 'type', value: 'rate limit' },
-      caption: 'Full-text search runs across both the summary and the original text.',
-    },
-    {
       sel: '#card-grid .card',
-      ms: 6500,
+      ms: 6000,
       waitBefore: 900,
       caption:
         'Every result is a card: summary, category & verified badges, and a ' +
@@ -106,7 +133,7 @@
     },
     {
       sel: '.feedback-actions',
-      ms: 5000,
+      ms: 4500,
       caption: 'Export the current, filtered view as CSV or JSON for reporting.',
     },
     {
