@@ -4,7 +4,10 @@
  * Automated public-feedback refresh (Phase 2).
  *
  * Pulls recent public mentions of each provider from Hacker News (Algolia
- * search API), GitHub (public issue search) and Reddit (official OAuth API),
+ * search API), GitHub (public issue search), Stack Overflow (public Stack
+ * Exchange API), Discourse community forums (public search.json, e.g. the
+ * OpenAI community forum), the DEV Community / Forem articles API (dev.to) and
+ * Reddit (official OAuth API),
  * keeps only negative-leaning items (likely complaints), maps them to the
  * canonical raw schema, de-duplicates against what is already stored, and
  * appends genuinely new items to data/*.json.
@@ -34,6 +37,15 @@ const MAX_NEW_PER_PROVIDER = 25; // safety cap per run
 const HITS_PER_PAGE = 50;
 const GITHUB_PER_PAGE = 30;
 const REDDIT_PER_PAGE = 25;
+const STACKOVERFLOW_PER_PAGE = 30;
+const DEVTO_PER_PAGE = 30;
+const BLUESKY_PER_PAGE = 25;
+// Bluesky's public AppView needs no auth, but some networks block it (HTTP 403),
+// so it is opt-in to keep the daily run quiet where it is unreachable.
+const ENABLE_BLUESKY = process.env.ENABLE_BLUESKY === '1';
+// Stack Exchange API is public/unauthenticated. An optional free key only
+// raises the daily quota (set env var STACKEXCHANGE_KEY to use one).
+const STACKEXCHANGE_KEY = process.env.STACKEXCHANGE_KEY || null;
 const REDDIT_CREDS_FILE = path.join(__dirname, 'reddit-credentials.json');
 const REDDIT_UA = 'web:dev-feedback-dashboard:1.0 (public feedback monitor)';
 
@@ -42,6 +54,25 @@ const SOURCE_LABELS = {
   hackernews: 'Hacker News',
   github: 'GitHub',
   reddit: 'Reddit',
+  stackoverflow: 'Stack Overflow',
+  discourse: 'Community Forum',
+  devto: 'DEV Community',
+  bluesky: 'Bluesky',
+  statuspage: 'Status page',
+  serverfault: 'Server Fault',
+  'devops-stackexchange': 'DevOps Stack Exchange',
+  'ai-stackexchange': 'AI Stack Exchange',
+  superuser: 'Super User',
+};
+
+// Stack Exchange network site -> canonical `source` value stored on each item.
+const SE_SITE_SOURCE = {
+  stackoverflow: 'stackoverflow',
+  serverfault: 'serverfault',
+  devops: 'devops-stackexchange',
+  ai: 'ai-stackexchange',
+  superuser: 'superuser',
+  softwareengineering: 'softwareengineering',
 };
 
 const PROVIDERS = [
@@ -53,6 +84,8 @@ const PROVIDERS = [
     // GitHub is searched by the provider's domains only (the bare brand name
     // "Together AI" is far too common and pulls in unrelated repos).
     githubQueries: ['together.ai', 'api.together.xyz'],
+    // Third-party integration repos where users file real Together AI bugs.
+    githubScopedQueries: [{ repo: 'langchain-ai/langchain', term: 'together' }],
     // a mention must reference the provider to count
     nameCues: ['together ai', 'together.ai', 'api.together.xyz', 'togethercompute'],
   },
@@ -62,6 +95,8 @@ const PROVIDERS = [
     idPrefix: 'fw',
     queries: ['Fireworks AI', 'fireworks.ai'],
     githubQueries: ['fireworks.ai', 'api.fireworks.ai'],
+    // Third-party integration repos where users file real Fireworks AI bugs.
+    githubScopedQueries: [{ repo: 'langchain-ai/langchain', term: 'fireworks' }],
     nameCues: ['fireworks ai', 'fireworks.ai', 'api.fireworks.ai'],
   },
   {
@@ -88,6 +123,8 @@ const PROVIDERS = [
     // Genuine AKS feedback is filed in the official issue tracker, so we also
     // pull recent issues straight from the Azure/AKS repo.
     githubRepos: ['Azure/AKS'],
+    // Public DEV Community (dev.to) articles tagged `aks`.
+    devtoTags: ['aks'],
     nameCues: ['azure kubernetes service', 'azure/aks', 'aks cluster', 'aks node pool', 'managed kubernetes'],
   },
   {
@@ -116,7 +153,34 @@ const PROVIDERS = [
     // Genuine API/SDK feedback is filed in OpenAI's official client repos, so we
     // also pull recent issues straight from those repos.
     githubRepos: ['openai/openai-python', 'openai/openai-node'],
+    // Third-party integration repos where users file real OpenAI API bugs.
+    githubScopedQueries: [
+      { repo: 'langchain-ai/langchain', term: 'openai' },
+      { repo: 'run-llama/llama_index', term: 'openai' },
+      { repo: 'vercel/ai', term: 'openai' },
+    ],
+    // Official Statuspage incident history (Atom) -> verified downtime items.
+    statuspageAtom: 'https://status.openai.com/history.atom',
+    // Also search the AI Stack Exchange site, not just Stack Overflow.
+    stackSites: ['stackoverflow', 'ai'],
+    // OpenAI runs a public Discourse community forum; its search.json endpoint
+    // needs no auth and is a strong developer-feedback source.
+    discourseHosts: ['community.openai.com'],
+    // Public DEV Community (dev.to) articles tagged `openai`.
+    devtoTags: ['openai'],
     nameCues: ['openai api', 'api.openai.com', 'openai-python', 'openai-node', 'chat.completions', 'responses api', 'azureopenai'],
+  },
+  {
+    provider: 'Azure AI Foundry',
+    file: 'azure-ai-foundry-complaints.json',
+    idPrefix: 'aif',
+    // Microsoft's unified AI app/agent platform (formerly Azure AI Studio).
+    // Tracked broadly to include the Azure OpenAI model deployments that now
+    // run under Foundry. Cues are anchored to the product names and SDK surface
+    // to keep developer feedback specific.
+    queries: ['Azure AI Foundry', 'Azure AI Studio', 'Azure OpenAI'],
+    githubQueries: ['azure-ai-foundry', 'azure.ai.inference', 'Azure AI Foundry'],
+    nameCues: ['azure ai foundry', 'azure ai studio', 'ai foundry', 'azure openai', 'azure-ai-foundry', 'azure.ai.inference', 'cognitive services openai'],
   },
 ];
 
@@ -146,6 +210,8 @@ const CATEGORY_RULES = [
 function stripHtml(s) {
   if (!s) return '';
   return String(s)
+    .replace(/<!\[CDATA\[/g, '')
+    .replace(/\]\]>/g, '')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&#x27;|&#39;/g, "'")
     .replace(/&quot;/g, '"')
@@ -287,6 +353,135 @@ async function fetchGithubRepoIssues(repo, sinceDate) {
   if (!res.ok) throw new Error(`GitHub repo search ${res.status} for "${repo}"`);
   const json = await res.json();
   return Array.isArray(json.items) ? json.items : [];
+}
+
+// Search issues *within a specific repo* that also mention a provider term
+// (e.g. `repo:langchain-ai/langchain "fireworks"`). Used for third-party
+// integration repos where users file real provider bugs; the provider term
+// keeps the match on-topic inside an otherwise huge, general repo.
+async function fetchGithubScopedIssues(repo, term, sinceDate) {
+  const q = `repo:${repo} "${term}" in:title,body type:issue created:>=${sinceDate}`;
+  const url =
+    'https://api.github.com/search/issues?q=' +
+    encodeURIComponent(q) +
+    '&sort=created&order=desc&per_page=' +
+    GITHUB_PER_PAGE;
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'dev-feedback-refresh/1.0',
+      Accept: 'application/vnd.github+json',
+    },
+  });
+  if (!res.ok) throw new Error(`GitHub scoped search ${res.status} for "${repo}"/"${term}"`);
+  const json = await res.json();
+  return Array.isArray(json.items) ? json.items : [];
+}
+
+// --- Official status page incident history (Atom; no auth) -------------------
+// Atlassian Statuspage exposes an unauthenticated Atom feed of past incidents at
+// `<host>/history.atom`. Each <entry> is a real, provider-confirmed incident, so
+// these become verified downtime items. Parsed with regex (no XML dependency).
+async function fetchStatuspageAtom(url) {
+  const res = await fetch(url, { headers: { 'User-Agent': 'dev-feedback-refresh/1.0' } });
+  if (!res.ok) throw new Error(`Statuspage ${res.status} for ${url}`);
+  const xml = await res.text();
+  const entries = [];
+  const rx = /<entry>([\s\S]*?)<\/entry>/g;
+  let m;
+  while ((m = rx.exec(xml))) {
+    const block = m[1];
+    const pick = (tag) => {
+      const mm = block.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
+      return mm ? mm[1] : '';
+    };
+    const linkM = block.match(/<link[^>]*href=['"]([^'"]+)['"]/);
+    entries.push({
+      title: stripHtml(pick('title')),
+      updated: pick('updated') || pick('published'),
+      link: linkM ? linkM[1] : url,
+      content: stripHtml(pick('content')),
+    });
+  }
+  return entries;
+}
+
+// --- Stack Overflow (public Stack Exchange API; no auth) ---------------------
+// The Stack Exchange API is public and unauthenticated; an optional free key
+// only raises the daily quota. We search a given SE network `site` newest-first
+// within the window and return the questions for the same proximity analysis as
+// the other web sources. Responses are gzip-encoded and Node's fetch
+// decompresses them automatically.
+async function fetchStackOverflowQuestions(query, sinceUnix, site = 'stackoverflow') {
+  const url =
+    'https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=creation' +
+    '&site=' + encodeURIComponent(site) + '&filter=withbody&pagesize=' +
+    STACKOVERFLOW_PER_PAGE +
+    '&fromdate=' +
+    sinceUnix +
+    '&q=' +
+    encodeURIComponent(query) +
+    (STACKEXCHANGE_KEY ? '&key=' + encodeURIComponent(STACKEXCHANGE_KEY) : '');
+  const res = await fetch(url, { headers: { 'User-Agent': 'dev-feedback-refresh/1.0' } });
+  if (!res.ok) throw new Error(`Stack Exchange (${site}) ${res.status} for "${query}"`);
+  const json = await res.json();
+  return Array.isArray(json.items) ? json.items : [];
+}
+
+// --- Discourse community forums (public search.json; no auth) ----------------
+// Many developer products run a public Discourse forum (e.g. the OpenAI
+// community forum at community.openai.com). Discourse exposes an unauthenticated
+// `search.json` endpoint. We search newest-first and resolve each matching
+// post's topic slug so we can build a stable permalink. Returns rows of
+// { post, slug, title, host } for the caller to filter by date/proximity.
+async function fetchDiscoursePosts(host, query) {
+  const url =
+    `https://${host}/search.json?q=` + encodeURIComponent(`${query} order:latest`);
+  const res = await fetch(url, { headers: { 'User-Agent': 'dev-feedback-refresh/1.0' } });
+  if (!res.ok) throw new Error(`Discourse ${host} ${res.status} for "${query}"`);
+  const json = await res.json();
+  const posts = Array.isArray(json.posts) ? json.posts : [];
+  const topics = Array.isArray(json.topics) ? json.topics : [];
+  const slugById = new Map(topics.map((t) => [t.id, t.slug]));
+  const titleById = new Map(topics.map((t) => [t.id, t.title]));
+  return posts.map((p) => ({
+    post: p,
+    slug: slugById.get(p.topic_id) || null,
+    title: titleById.get(p.topic_id) || '',
+    host,
+  }));
+}
+
+// --- DEV Community / Forem (public articles API; no auth) --------------------
+// Dev.to (a Forem instance) exposes a public, unauthenticated articles API. We
+// pull recent articles for a given tag and let the same proximity analysis keep
+// only on-topic, negative-leaning mentions of the provider.
+async function fetchDevtoArticles(tag) {
+  const url =
+    'https://dev.to/api/articles?per_page=' + DEVTO_PER_PAGE +
+    '&tag=' + encodeURIComponent(tag);
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'dev-feedback-refresh/1.0',
+      Accept: 'application/vnd.forem.api-v1+json',
+    },
+  });
+  if (!res.ok) throw new Error(`Dev.to ${res.status} for tag "${tag}"`);
+  const json = await res.json();
+  return Array.isArray(json) ? json : [];
+}
+
+// --- Bluesky (public AppView; no auth) ---------------------------------------
+// Bluesky's public AppView exposes an unauthenticated post search. It is opt-in
+// (ENABLE_BLUESKY=1) because some networks return HTTP 403 for it; enable it
+// wherever public.api.bsky.app is reachable.
+async function fetchBlueskyPosts(query) {
+  const url =
+    'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts?limit=' +
+    BLUESKY_PER_PAGE + '&sort=latest&q=' + encodeURIComponent(query);
+  const res = await fetch(url, { headers: { 'User-Agent': 'dev-feedback-refresh/1.0' } });
+  if (!res.ok) throw new Error(`Bluesky ${res.status} for "${query}"`);
+  const json = await res.json();
+  return Array.isArray(json.posts) ? json.posts : [];
 }
 
 // --- Reddit (official OAuth API) ---------------------------------------------
@@ -465,6 +660,141 @@ async function collectCandidates(cfg, sinceUnix) {
     }
   }
 
+  // --- GitHub issues in third-party integration repos mentioning the provider ---
+  for (const sc of cfg.githubScopedQueries || []) {
+    try {
+      const items = await fetchGithubScopedIssues(sc.repo, sc.term, sinceDate);
+      for (const it of items) {
+        if (!it.html_url) continue;
+        candidates.push({
+          text: stripHtml(`${it.title || ''}. ${it.body || ''}`),
+          sourceUrl: it.html_url,
+          source: 'github',
+          author: it.user && it.user.login ? it.user.login : null,
+          dateISO: it.created_at || null,
+        });
+      }
+    } catch (err) {
+      console.warn(`  [warn] ${err.message}`);
+    }
+  }
+
+  // --- Stack Exchange network (public API; no auth) ---
+  const seSites = cfg.stackSites && cfg.stackSites.length ? cfg.stackSites : ['stackoverflow'];
+  for (const site of seSites) {
+    for (const q of cfg.queries) {
+      try {
+        const questions = await fetchStackOverflowQuestions(q, sinceUnix, site);
+        for (const item of questions) {
+          if (!item.link) continue;
+          candidates.push({
+            text: stripHtml(`${item.title || ''}. ${item.body || ''}`),
+            sourceUrl: item.link,
+            source: SE_SITE_SOURCE[site] || 'stackoverflow',
+            author: item.owner && item.owner.display_name ? item.owner.display_name : null,
+            dateISO: item.creation_date ? new Date(item.creation_date * 1000).toISOString() : null,
+          });
+        }
+      } catch (err) {
+        console.warn(`  [warn] ${err.message}`);
+      }
+    }
+  }
+
+  // --- Official status page incident history (Atom; verified downtime) ---
+  if (cfg.statuspageAtom) {
+    try {
+      const entries = await fetchStatuspageAtom(cfg.statuspageAtom);
+      for (const e of entries) {
+        const createdUnix = e.updated ? Math.floor(new Date(e.updated).getTime() / 1000) : 0;
+        if (createdUnix < sinceUnix) continue;
+        candidates.push({
+          text: stripHtml([e.title, e.content].filter(Boolean).join('. ')),
+          sourceUrl: e.link,
+          source: 'statuspage',
+          author: null,
+          dateISO: e.updated || null,
+          statuspage: true,
+        });
+      }
+    } catch (err) {
+      console.warn(`  [warn] ${err.message}`);
+    }
+  }
+
+  // --- Discourse community forums (public search.json; no auth) ---
+  for (const host of cfg.discourseHosts || []) {
+    for (const q of cfg.queries) {
+      try {
+        const rows = await fetchDiscoursePosts(host, q);
+        for (const row of rows) {
+          const p = row.post;
+          const createdUnix = p.created_at ? Math.floor(new Date(p.created_at).getTime() / 1000) : 0;
+          if (createdUnix < sinceUnix) continue;
+          const permalink = row.slug
+            ? `https://${row.host}/t/${row.slug}/${p.topic_id}`
+            : `https://${row.host}/t/${p.topic_id}`;
+          candidates.push({
+            text: stripHtml(`${row.title}. ${p.blurb || ''}`),
+            sourceUrl: permalink,
+            source: 'discourse',
+            author: p.username || null,
+            dateISO: p.created_at || null,
+          });
+        }
+      } catch (err) {
+        console.warn(`  [warn] ${err.message}`);
+      }
+    }
+  }
+
+  // --- DEV Community / Forem (public articles API; no auth) ---
+  for (const tag of cfg.devtoTags || []) {
+    try {
+      const articles = await fetchDevtoArticles(tag);
+      for (const a of articles) {
+        if (!a.url) continue;
+        const createdUnix = a.published_at ? Math.floor(new Date(a.published_at).getTime() / 1000) : 0;
+        if (createdUnix < sinceUnix) continue;
+        candidates.push({
+          text: stripHtml(`${a.title || ''}. ${a.description || ''}`),
+          sourceUrl: a.url,
+          source: 'devto',
+          author: a.user && a.user.username ? a.user.username : null,
+          dateISO: a.published_at || null,
+        });
+      }
+    } catch (err) {
+      console.warn(`  [warn] ${err.message}`);
+    }
+  }
+
+  // --- Bluesky (public AppView; opt-in via ENABLE_BLUESKY=1) ---
+  if (ENABLE_BLUESKY) {
+    for (const q of cfg.queries) {
+      try {
+        const posts = await fetchBlueskyPosts(q);
+        for (const p of posts) {
+          if (!p.uri) continue;
+          const createdUnix = p.indexedAt ? Math.floor(new Date(p.indexedAt).getTime() / 1000) : 0;
+          if (createdUnix < sinceUnix) continue;
+          const handle = p.author && p.author.handle ? p.author.handle : null;
+          const rkey = String(p.uri).split('/').pop();
+          if (!handle || !rkey) continue;
+          candidates.push({
+            text: stripHtml((p.record && p.record.text) || ''),
+            sourceUrl: `https://bsky.app/profile/${handle}/post/${rkey}`,
+            source: 'bluesky',
+            author: handle,
+            dateISO: p.indexedAt || (p.record && p.record.createdAt) || null,
+          });
+        }
+      } catch (err) {
+        console.warn(`  [warn] ${err.message}`);
+      }
+    }
+  }
+
   // --- Reddit (official OAuth API; skipped when no credentials) ---
   const redditToken = await ensureRedditToken();
   if (redditToken) {
@@ -514,7 +844,18 @@ async function refreshProvider(cfg, sinceUnix) {
     if (text.length < 20) continue;
     if (!isLatinText(text)) continue;
     if (isBotNoise(cand.author, text)) continue;
-    const verdict = cand.repoScoped ? analyzeRepoIssue(text) : analyze(text, cfg.nameCues);
+
+    // Status-page incidents are provider-confirmed downtime, so they bypass the
+    // negative-cue proximity test and are stored as verified items.
+    let verdict;
+    let verified = false;
+    let sentiment = 'negative';
+    if (cand.statuspage) {
+      verdict = { snippet: text, category: 'downtime' };
+      verified = true;
+    } else {
+      verdict = cand.repoScoped ? analyzeRepoIssue(text) : analyze(text, cfg.nameCues);
+    }
     if (!verdict) continue;
 
     const snippet = verdict.snippet;
@@ -529,13 +870,13 @@ async function refreshProvider(cfg, sinceUnix) {
       complaint: `Auto-collected ${label} mention referencing ${cfg.provider}: "${trimmed}"`,
       quote: trimmed,
       category,
-      sentiment: 'negative',
+      sentiment,
       author_handle: cand.author || null,
       source: cand.source,
       source_url: cand.sourceUrl,
       corroborating_urls: [],
       date: cand.dateISO ? new Date(cand.dateISO).toISOString().slice(0, 10) : null,
-      verified: false,
+      verified,
       auto_collected: true,
     });
   }
@@ -555,9 +896,11 @@ async function refreshProvider(cfg, sinceUnix) {
 // hand-written narrative is left untouched — only the auto-stats markers move.
 const ROOT_DIR = path.join(__dirname, '..');
 const SUMMARY_MD = path.join(ROOT_DIR, 'DATA_SOURCES_SUMMARY.md');
-const SUMMARY_DOCX = 'DATA_SOURCES_SUMMARY.docx';
+// data/ artifacts kept in step with the live data (computed, not hand-curated).
+const SUMMARY_JSON = path.join(DATA_DIR, 'summary.json');
+const WEEKLY_MD = path.join(DATA_DIR, 'weekly-summary.md');
 // Provider display order + the JSON file each lives in (mirrors PROVIDERS).
-const DOC_SOURCE_LABELS = { hackernews: 'Hacker News', github: 'GitHub issues', reddit: 'Reddit' };
+const DOC_SOURCE_LABELS = { hackernews: 'Hacker News', github: 'GitHub issues', reddit: 'Reddit', stackoverflow: 'Stack Overflow', serverfault: 'serverfault', 'devops-stackexchange': 'devops-stackexchange', 'ai-stackexchange': 'AI Stack Exchange', superuser: 'Super User', discourse: 'Community Forum', devto: 'DEV Community', bluesky: 'Bluesky', statuspage: 'Status page' };
 
 function replaceBetween(text, startMarker, endMarker, replacement) {
   const rx = new RegExp(
@@ -598,9 +941,13 @@ function buildCountsSentence(stats) {
   const curatedList = stats.curatedByProvider
     .map((p) => `${p.count} ${p.provider}`)
     .join(', ');
-  const sourceOrder = ['hackernews', 'github', 'reddit'];
+  const sourceOrder = ['statuspage', 'hackernews', 'github', 'stackoverflow', 'serverfault', 'devops-stackexchange', 'ai-stackexchange', 'superuser', 'reddit', 'discourse', 'devto', 'bluesky'];
   const autoList = Object.keys(stats.autoBySource)
-    .sort((a, b) => sourceOrder.indexOf(a) - sourceOrder.indexOf(b))
+    .sort((a, b) => {
+      const ia = sourceOrder.indexOf(a);
+      const ib = sourceOrder.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    })
     .map((s) => `${stats.autoBySource[s]} from ${DOC_SOURCE_LABELS[s] || s}`)
     .join(', ');
   const curatedPart = curatedList ? ` (${curatedList})` : '';
@@ -628,19 +975,120 @@ function regenerateDoc() {
   console.log(`[refresh] summary updated — ${stats.total} items (${stats.curatedTotal} curated, ${stats.autoTotal} auto).`);
 
   if (process.platform !== 'win32') return; // .docx rebuild needs PowerShell
+  // Rebuild every tracked Markdown -> Word .docx pair so no doc file drifts from
+  // its source Markdown when the data (and therefore the summary) changes.
+  const DOCX_PAIRS = [
+    { in: 'DATA_SOURCES_SUMMARY.md', out: 'DATA_SOURCES_SUMMARY.docx' },
+    { in: path.join('workflow', 'WORKFLOW.md'), out: path.join('workflow', 'WORKFLOW.docx') },
+  ];
+  for (const pair of DOCX_PAIRS) {
+    if (!fs.existsSync(path.join(ROOT_DIR, pair.in))) continue; // only rebuild docs that exist
+    try {
+      const { spawnSync } = require('child_process');
+      const r = spawnSync(
+        'powershell',
+        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
+          path.join(__dirname, 'md-to-docx.ps1'),
+          '-In', pair.in, '-Out', pair.out],
+        { cwd: ROOT_DIR, encoding: 'utf8' },
+      );
+      if (r.status === 0) console.log(`[refresh] ${pair.out} rebuilt.`);
+      else console.warn(`  [warn] ${pair.out} rebuild skipped (PowerShell exit ${r.status}).`);
+    } catch (err) {
+      console.warn(`  [warn] ${pair.out} rebuild skipped: ${err.message}`);
+    }
+  }
+}
+
+// Render a counts object ({ key: n }) as a "key n · key n" string, largest first.
+function fmtCounts(obj, limit) {
+  const entries = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]);
+  const use = limit ? entries.slice(0, limit) : entries;
+  return use.map(([k, v]) => `${k} ${v}`).join(' · ') || '—';
+}
+
+// Regenerate the computed data/ artifacts so they never drift from the live data:
+//  - data/summary.json      -> full stats snapshot, identical to /api/summary
+//  - data/weekly-summary.md  -> only the marked LIVE snapshot block is rewritten;
+//                               the hand-curated narrative + bias flags are preserved.
+function regenerateSummaries() {
+  let store;
   try {
-    const { spawnSync } = require('child_process');
-    const r = spawnSync(
-      'powershell',
-      ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File',
-        path.join(__dirname, 'md-to-docx.ps1'),
-        '-In', 'DATA_SOURCES_SUMMARY.md', '-Out', SUMMARY_DOCX],
-      { cwd: ROOT_DIR, encoding: 'utf8' },
-    );
-    if (r.status === 0) console.log('[refresh] DATA_SOURCES_SUMMARY.docx rebuilt.');
-    else console.warn(`  [warn] docx rebuild skipped (PowerShell exit ${r.status}).`);
+    const { createStore } = require('../backend/store');
+    store = createStore({ dataDir: DATA_DIR });
+    store.load();
   } catch (err) {
-    console.warn(`  [warn] docx rebuild skipped: ${err.message}`);
+    console.warn(`  [warn] summary regen skipped: ${err.message}`);
+    return;
+  }
+  const s = store.summary();
+  const stats = computeDocStats();
+  const nowIso = new Date().toISOString();
+  const today = nowIso.slice(0, 10);
+
+  // Deterministic "top issues": the 5 most recent dated complaint/feature_request items.
+  const topIssues = store
+    .all()
+    .filter((it) => it.feedback_type === 'complaint' || it.feedback_type === 'feature_request')
+    .filter((it) => it.date)
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    .slice(0, 5)
+    .map((it) => ({
+      id: it.id,
+      provider: it.provider,
+      feedback_type: it.feedback_type,
+      category: it.category,
+      summary: it.summary,
+      source_url: it.source_url,
+      date: it.date,
+    }));
+
+  const summaryJson = {
+    generated_at: nowIso,
+    note:
+      'Auto-generated from the live normalized data in data/ by tools/refresh.js; ' +
+      'computed figures match /api/summary. Includes auto-collected items (verified:false). ' +
+      'top_issues = the 5 most recent dated complaint/feature_request items.',
+    total: s.total,
+    curated_total: stats.curatedTotal,
+    auto_collected_total: stats.autoTotal,
+    by_platform: s.by_platform,
+    by_feedback_type: s.by_feedback_type,
+    by_category: s.by_category,
+    by_sentiment: s.by_sentiment,
+    by_source: s.by_source,
+    trend_by_month: s.trend_by_month,
+    undated_count: s.undated_count,
+    top_issues: topIssues,
+  };
+  try {
+    fs.writeFileSync(SUMMARY_JSON, JSON.stringify(summaryJson, null, 2) + '\n', 'utf8');
+    console.log(`[refresh] data/summary.json updated — ${s.total} items.`);
+  } catch (err) {
+    console.warn(`  [warn] summary.json write skipped: ${err.message}`);
+  }
+
+  // weekly-summary.md: refresh only the marked LIVE snapshot; leave the curated
+  // narrative (with its bias flags) intact.
+  try {
+    let md = fs.readFileSync(WEEKLY_MD, 'utf8');
+    const live =
+      `_Live snapshot — auto-updated by tools/refresh.js as of ${today}:_\n\n` +
+      `- **Total items tracked:** ${s.total} (${stats.curatedTotal} hand-curated + ${stats.autoTotal} auto-collected; all auto items \`verified: false\`)\n` +
+      `- **By platform:** ${fmtCounts(s.by_platform)}\n` +
+      `- **By feedback type:** ${fmtCounts(s.by_feedback_type)}\n` +
+      `- **By category (top 6):** ${fmtCounts(s.by_category, 6)}\n` +
+      `- **By sentiment:** ${fmtCounts(s.by_sentiment)}\n\n` +
+      `_The curated deep-dive below covers the initial hand-reviewed sample and is intentionally narrower than these live totals._`;
+    if (md.includes('<!-- AUTOSTATS:LIVE:START -->')) {
+      md = replaceBetween(md, '<!-- AUTOSTATS:LIVE:START -->', '<!-- AUTOSTATS:LIVE:END -->', live);
+      fs.writeFileSync(WEEKLY_MD, md, 'utf8');
+      console.log('[refresh] data/weekly-summary.md live snapshot updated.');
+    } else {
+      console.warn('  [warn] weekly-summary.md has no AUTOSTATS:LIVE markers — skipped.');
+    }
+  } catch (err) {
+    console.warn(`  [warn] weekly-summary.md update skipped: ${err.message}`);
   }
 }
 
@@ -650,7 +1098,8 @@ async function main() {
     process.exit(1);
   }
   const sinceUnix = Math.floor(Date.now() / 1000) - WINDOW_DAYS * 86400;
-  const sources = ['Hacker News', 'GitHub'];
+  const sources = ['Hacker News', 'GitHub', 'Stack Exchange', 'Discourse', 'Dev.to', 'Status pages'];
+  if (ENABLE_BLUESKY) sources.push('Bluesky');
   if (await ensureRedditToken()) {
     sources.push('Reddit');
   } else {
@@ -668,6 +1117,8 @@ async function main() {
 
   // Keep the data-sources summary (md + docx) in step with the live data.
   regenerateDoc();
+  // Keep the computed data/ summaries (summary.json + weekly-summary.md) in step.
+  regenerateSummaries();
 }
 
 main().catch((err) => {

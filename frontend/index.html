@@ -8,13 +8,25 @@
   </head>
   <body>
     <header class="site-header">
-      <h1>Developer Feedback Dashboard</h1>
-      <p class="subtitle">Together AI · Fireworks AI · Tinker API · Azure Kubernetes Service (DIY) · Azure Machine Learning · OpenAI</p>
+      <div class="site-header__inner">
+        <h1>Developer Feedback Dashboard</h1>
+        <p class="subtitle">Together AI · Fireworks AI · Tinker API · Azure Kubernetes Service (DIY) · Azure Machine Learning · OpenAI</p>
+      </div>
     </header>
+
+    <nav class="section-nav" aria-label="Jump to section">
+      <a href="#overview">Overview</a>
+      <a href="#analytics">Analytics</a>
+      <a href="#explore">Explore feedback</a>
+      <a href="#sources">Data sources</a>
+    </nav>
 
     <main class="container">
       <!-- ============ Top issue callout ============ -->
       <div class="top-issue-banner" id="top-issue" role="status" hidden></div>
+
+      <!-- ============ Zone 1 · Overview ============ -->
+      <div class="zone-divider" id="overview"><span>1 · Overview</span></div>
 
       <!-- ============ Executive Summary ============ -->
       <section class="exec-summary" aria-labelledby="exec-summary-heading">
@@ -41,19 +53,24 @@
 
         <div class="charts-grid">
           <figure class="chart-card">
-            <figcaption>Feedback by platform</figcaption>
-            <div class="chart" id="chart-platform" role="img"
-              aria-label="Bar chart of feedback count by platform"></div>
-          </figure>
-          <figure class="chart-card">
             <figcaption>Feedback by type</figcaption>
             <div class="chart" id="chart-type" role="img"
               aria-label="Bar chart of feedback count by type"></div>
           </figure>
           <figure class="chart-card chart-card-wide">
-            <figcaption>Trend by month</figcaption>
-            <div class="chart" id="chart-trend" role="img"
-              aria-label="Line chart of feedback count by month"></div>
+            <figcaption>Feedback by type &amp; issue category
+              <small class="caption-note">What each feedback type is actually about — pick a type to see its issues broken down by category.</small>
+            </figcaption>
+            <div class="fv-controls">
+              <label for="tc-type">Feedback type</label>
+              <select id="tc-type">
+                <option value="complaint">Complaint</option>
+                <option value="question">Question</option>
+                <option value="feature_request">Feature request</option>
+              </select>
+            </div>
+            <div class="chart" id="chart-type-category" role="img"
+              aria-label="Bar chart of the selected feedback type broken down by issue category"></div>
           </figure>
         </div>
 
@@ -61,9 +78,113 @@
           <div class="summary-block">
             <h3>By category</h3>
             <ul class="bar-list" id="by-category"></ul>
+            <small class="caption-note">Each bar counts how many collected posts were classified into that category (one category per post, assigned by keyword rules; unmatched posts fall in “other”). It reflects volume of feedback per topic — not severity. Data collected from public developer forums — Hacker News, GitHub issues, Stack Overflow and the providers' official status pages.</small>
           </div>
         </div>
       </section>
+
+      <!-- ============ Zone 2 · Explore feedback ============ -->
+      <div class="zone-divider" id="explore"><span>2 · Explore feedback</span></div>
+
+      <!-- ============ Filters ============ -->
+      <section class="filters" aria-labelledby="filters-heading">
+        <h2 id="filters-heading">Feedback by category</h2>
+        <p class="chart-note">Narrow the feedback by platform, type, source, sentiment, verification, date or keyword. The stats and chart below update to match; the full list is further down the page.</p>
+        <form id="filter-form" class="filter-form" role="search">
+          <div class="field">
+            <label for="filter-platform">Platform</label>
+            <select id="filter-platform" name="platform">
+              <option value="">All platforms</option>
+              <option value="together-ai">Together AI</option>
+              <option value="fireworks-ai">Fireworks AI</option>
+              <option value="tinker-api">Tinker API</option>
+              <option value="azure-kubernetes-service">Azure Kubernetes Service</option>
+              <option value="azure-machine-learning">Azure Machine Learning</option>
+              <option value="azure-ai-foundry">Azure AI Foundry</option>
+              <option value="openai">OpenAI</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-feedback-type">Feedback type</label>
+            <select id="filter-feedback-type" name="feedback_type">
+              <option value="">All types</option>
+              <option value="complaint">Complaint</option>
+              <option value="question">Question</option>
+              <option value="feature_request">Feature request</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-category">Category</label>
+            <select id="filter-category" name="category">
+              <option value="">All categories</option>
+              <!-- categories injected from /api/summary -->
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-source">Source</label>
+            <select id="filter-source" name="source">
+              <option value="">All sources</option>
+              <!-- sources injected from /api/summary -->
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-sentiment">Sentiment</label>
+            <select id="filter-sentiment" name="sentiment">
+              <option value="">All sentiment</option>
+              <option value="negative">Negative</option>
+              <option value="mixed">Mixed</option>
+              <option value="neutral">Neutral</option>
+              <option value="positive">Positive</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-verified">Verified</label>
+            <select id="filter-verified" name="verified">
+              <option value="">All items</option>
+              <option value="true">Verified only</option>
+              <option value="false">Unverified only</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filter-date-from">From date</label>
+            <input type="date" id="filter-date-from" name="date_from" />
+          </div>
+
+          <div class="field">
+            <label for="filter-date-to">To date</label>
+            <input type="date" id="filter-date-to" name="date_to" />
+          </div>
+
+          <div class="field field-search">
+            <label for="filter-q">Search</label>
+            <input
+              type="search"
+              id="filter-q"
+              name="q"
+              placeholder="Search summary &amp; original text…"
+              autocomplete="off"
+            />
+          </div>
+
+          <button type="button" id="reset-filters" class="reset-btn">Reset</button>
+        </form>
+
+        <div class="fv-stats" id="fv-stats" aria-live="polite"></div>
+        <figure class="chart-card chart-card-wide" id="fv-figure">
+          <figcaption id="fv-caption">Feedback by product</figcaption>
+          <div class="chart" id="fv-chart" role="img" aria-label="Chart of the filtered feedback"></div>
+        </figure>
+        <p class="empty-state" id="fv-empty" hidden>No data to plot for the current filters.</p>
+      </section>
+
+      <!-- ============ Zone 3 · Analytics ============ -->
+      <div class="zone-divider" id="analytics"><span>3 · Analytics</span></div>
 
       <!-- ============ Trends over time ============ -->
       <section class="trends" aria-labelledby="trends-heading">
@@ -83,10 +204,71 @@
           down over time.
         </p>
         <figure class="chart-card chart-card-wide">
+          <figcaption>Trend by month
+            <small class="caption-note">Data collected from public developer forums — Hacker News, GitHub issues, Stack Overflow and the providers' official status pages.</small>
+          </figcaption>
+          <div class="chart" id="chart-trend" role="img"
+            aria-label="Line chart of feedback count by month"></div>
+        </figure>
+        <figure class="chart-card chart-card-wide">
           <figcaption id="trend-breakdown-caption">Feedback per month by provider</figcaption>
           <div class="chart" id="chart-breakdown" role="img"
             aria-label="Multi-line chart of feedback count per month, broken down by provider or category"></div>
         </figure>
+        <div class="insight-banner" id="trend-insight-breakdown" role="status" hidden></div>
+      </section>
+
+      <!-- ============ AKS deep dive ============ -->
+      <section class="aks-deep-dive" aria-labelledby="aks-heading">
+        <details class="collapsible">
+          <summary id="aks-heading">AKS deep dive <span class="collapse-hint">— click to expand</span></summary>
+          <p class="chart-note">
+            A focused look at Azure Kubernetes Service (AKS) — the self-hosted / DIY
+            way to run models — covering what developers complain about, why the
+            recent data spiked, and what it means for the business.
+          </p>
+          <div class="aks-charts">
+            <figure class="chart-card">
+              <figcaption>AKS issues by category</figcaption>
+              <div class="chart" id="aks-chart-category" role="img"
+                aria-label="Bar chart of AKS feedback counts by issue category"></div>
+            </figure>
+            <figure class="chart-card">
+              <figcaption>AKS feedback per month</figcaption>
+              <div class="chart" id="aks-chart-trend" role="img"
+                aria-label="Line chart of AKS feedback counts per month"></div>
+            </figure>
+          </div>
+          <div class="aks-charts">
+            <figure class="chart-card chart-card-wide">
+              <figcaption>Why the spike — posts per day in <span id="aks-spike-month">the peak month</span></figcaption>
+              <div class="chart" id="aks-chart-spike" role="img"
+                aria-label="Bar chart of AKS posts per day during the peak month"></div>
+              <small class="chart-takeaway" id="aks-spike-caption"></small>
+            </figure>
+          </div>
+          <div class="aks-charts">
+            <figure class="chart-card">
+              <figcaption>Business impact by area</figcaption>
+              <div class="chart" id="aks-chart-impact" role="img"
+                aria-label="Bar chart of AKS feedback grouped into business-impact areas"></div>
+              <small class="chart-takeaway" id="aks-impact-caption"></small>
+            </figure>
+          </div>
+          <small class="caption-note">AKS data collected from public developer forums — the Azure/AKS GitHub issue tracker, Stack Overflow and Hacker News. Items are auto-collected and unverified; counts reflect volume of feedback, not severity.</small>
+        </details>
+      </section>
+
+      <!-- ============ Provider health ============ -->
+      <section class="health" aria-labelledby="health-heading">
+        <h2 id="health-heading">Provider health</h2>
+        <p class="chart-note">
+          A heuristic <strong>concern index</strong> per provider, combining total
+          feedback volume, the share that is verified downtime, and recent momentum.
+          Higher = more developer concern. A ▲ marks a recent spike vs. the trailing average.
+        </p>
+        <div class="health-cards" id="health-cards" aria-live="polite"></div>
+        <small class="caption-note">Heuristic and relative — a comparison aid, not an official reliability rating.</small>
       </section>
 
       <!-- ============ Provider comparison ============ -->
@@ -97,6 +279,18 @@
           provider draws more complaints in each area.
         </p>
         <div class="comparison-table" id="comparison-table"></div>
+
+        <div class="callout callout-latency" id="latency-callout">
+          <h3>Latency is the universal pain point</h3>
+          <p id="latency-callout-text"></p>
+          <figure class="chart-card chart-card-wide">
+            <figcaption>Latency complaints by provider
+              <small class="caption-note">Bar = number of latency posts; the % is that provider's share of its own feedback that is about latency.</small>
+            </figcaption>
+            <div class="chart" id="chart-latency" role="img"
+              aria-label="Ranked bar chart of latency-related feedback by provider"></div>
+          </figure>
+        </div>
       </section>
 
       <!-- ============ Sentiment over time ============ -->
@@ -113,57 +307,6 @@
         </figure>
       </section>
 
-      <!-- ============ Filters ============ -->
-      <section class="filters" aria-labelledby="filters-heading">
-        <h2 id="filters-heading" class="visually-hidden">Filters</h2>
-        <form id="filter-form" class="filter-form" role="search">
-          <div class="field">
-            <label for="filter-platform">Platform</label>
-            <select id="filter-platform" name="platform">
-              <option value="">All platforms</option>
-              <option value="together-ai">Together AI</option>
-              <option value="fireworks-ai">Fireworks AI</option>
-              <option value="tinker-api">Tinker API</option>
-              <option value="azure-kubernetes-service">Azure Kubernetes Service</option>
-              <option value="azure-machine-learning">Azure Machine Learning</option>
-              <option value="openai">OpenAI</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="filter-feedback-type">Feedback type</label>
-            <select id="filter-feedback-type" name="feedback_type">
-              <option value="">All types</option>
-              <option value="complaint">Complaint</option>
-              <option value="question">Question</option>
-              <option value="feature_request">Feature request</option>
-              <option value="positive">Positive</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="filter-category">Category</label>
-            <select id="filter-category" name="category">
-              <option value="">All categories</option>
-              <!-- categories injected from /api/summary -->
-            </select>
-          </div>
-
-          <div class="field field-search">
-            <label for="filter-q">Search</label>
-            <input
-              type="search"
-              id="filter-q"
-              name="q"
-              placeholder="Search summary &amp; original text…"
-              autocomplete="off"
-            />
-          </div>
-
-          <button type="button" id="reset-filters" class="reset-btn">Reset</button>
-        </form>
-      </section>
-
       <!-- ============ Feedback list ============ -->
       <section class="feedback" aria-labelledby="feedback-heading">
         <div class="feedback-header">
@@ -178,6 +321,24 @@
         <p class="empty-state" id="empty-state" hidden>
           No feedback matches the current filters.
         </p>
+        <div class="load-more-wrap">
+          <button type="button" class="load-more-btn" id="load-more" hidden>Load more</button>
+        </div>
+      </section>
+
+      <!-- ============ Zone 4 · Data sources ============ -->
+      <div class="zone-divider" id="sources"><span>4 · Data sources</span></div>
+      <section class="sources" aria-labelledby="sources-heading">
+        <h2 id="sources-heading">Data sources</h2>
+        <p class="chart-note">
+          Where the collected feedback comes from, and how many items each public
+          source contributed. All items are auto-collected, carry a citation, and
+          are unverified unless corroborated by an official status page.
+        </p>
+        <div class="chart" id="chart-source" role="img"
+          aria-label="Bar chart of collected items per data source"></div>
+        <div class="sources-table" id="sources-table"></div>
+        <small class="caption-note">Counts reflect how many items were gathered from each source — not the relative reliability of those sources.</small>
       </section>
     </main>
 

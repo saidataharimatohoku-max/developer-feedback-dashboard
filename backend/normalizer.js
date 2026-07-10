@@ -1,7 +1,7 @@
 'use strict';
 
 // Canonical enums (ARCHITECTURE.md §3 / §4).
-const FEEDBACK_TYPES = ['complaint', 'question', 'feature_request', 'positive'];
+const FEEDBACK_TYPES = ['complaint', 'question', 'feature_request', 'neutral', 'positive'];
 const CATEGORIES = [
   'latency',
   'downtime',
@@ -38,6 +38,19 @@ const COMPLAINT_CATEGORIES = new Set([
 ]);
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+// Canonicalize equivalent source labels that appear under different keys in the
+// stored data (e.g. hand-curated `status_page` vs auto-collected `statuspage`),
+// so counts/filters/charts treat them as a single source.
+const SOURCE_ALIASES = {
+  status_page: 'statuspage',
+};
+
+function canonicalSource(source) {
+  if (source == null) return source;
+  const s = String(source);
+  return SOURCE_ALIASES[s] || s;
+}
 
 /** "Together AI" -> "together-ai" (lowercase, spaces/`.` -> `-`). */
 function slugify(provider) {
@@ -85,11 +98,15 @@ function feedbackType({ summary, quote, category, sentiment } = {}) {
   if (sentiment === 'negative' || COMPLAINT_CATEGORIES.has(category)) {
     return 'complaint';
   }
-  // Rule 4 — positive
-  if (sentiment === 'neutral' || sentiment === 'mixed') {
+  // Rule 4 — positive (genuine praise only: an explicitly positive sentiment)
+  if (sentiment === 'positive') {
     return 'positive';
   }
-  // Rule 5 — fallback
+  // Rule 5 — neutral (neutral/mixed mentions that aren't praise)
+  if (sentiment === 'neutral' || sentiment === 'mixed') {
+    return 'neutral';
+  }
+  // Rule 6 — fallback
   return 'complaint';
 }
 
@@ -115,7 +132,7 @@ function normalize(raw, provider) {
     sentiment,
     summary,
     original_text: emptyToNull(quote),
-    source: raw ? raw.source : undefined,
+    source: canonicalSource(raw ? raw.source : undefined),
     source_url: emptyToNull(raw ? raw.source_url : undefined),
     corroborating_urls:
       raw && Array.isArray(raw.corroborating_urls) ? raw.corroborating_urls : [],

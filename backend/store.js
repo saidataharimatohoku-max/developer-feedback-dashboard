@@ -8,15 +8,21 @@ const { normalizeAll, FEEDBACK_TYPES, CATEGORIES } = require('./normalizer');
 // Pick the single biggest issue to surface in the dashboard headline.
 // Prefers the most recent month with data; falls back to all-time totals.
 function computeTopIssue(sortedMonths, categoryMonth, byCategory) {
+  // "other" is a catch-all bucket with no actionable meaning, so it is never
+  // surfaced as the headline issue — we pick the most common *specific* category.
+  const pickTop = (counts) => {
+    const entries = Object.entries(counts || {}).filter(([cat]) => cat !== 'other');
+    if (!entries.length) return null;
+    return entries.sort((a, b) => b[1] - a[1])[0];
+  };
   for (let i = sortedMonths.length - 1; i >= 0; i -= 1) {
     const month = sortedMonths[i];
-    const counts = categoryMonth[month];
-    if (counts && Object.keys(counts).length) {
-      const [category, count] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-      return { category, count, month, scope: 'month' };
+    const top = pickTop(categoryMonth[month]);
+    if (top) {
+      return { category: top[0], count: top[1], month, scope: 'month' };
     }
   }
-  const allTime = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0];
+  const allTime = pickTop(byCategory);
   if (allTime) {
     return { category: allTime[0], count: allTime[1], month: null, scope: 'all' };
   }
@@ -76,7 +82,7 @@ function createStore({ dataDir = DATA_DIR } = {}) {
     return platforms.has(String(value).toLowerCase());
   }
 
-  function filter({ platform, feedback_type, category, q } = {}) {
+  function filter({ platform, feedback_type, category, q, source, sentiment, verified, date_from, date_to } = {}) {
     let result = items;
 
     if (platform) {
@@ -92,6 +98,25 @@ function createStore({ dataDir = DATA_DIR } = {}) {
     if (category) {
       const c = category.toLowerCase();
       result = result.filter((it) => it.category === c);
+    }
+    if (source) {
+      const s = source.toLowerCase();
+      result = result.filter((it) => (it.source || '').toLowerCase() === s);
+    }
+    if (sentiment) {
+      const sv = sentiment.toLowerCase();
+      result = result.filter((it) => (it.sentiment || '').toLowerCase() === sv);
+    }
+    if (verified === true || verified === 'true') {
+      result = result.filter((it) => it.verified === true);
+    } else if (verified === false || verified === 'false') {
+      result = result.filter((it) => it.verified !== true);
+    }
+    if (date_from) {
+      result = result.filter((it) => it.date && it.date >= date_from);
+    }
+    if (date_to) {
+      result = result.filter((it) => it.date && it.date <= date_to);
     }
     if (q) {
       const needle = q.toLowerCase();
@@ -110,7 +135,9 @@ function createStore({ dataDir = DATA_DIR } = {}) {
     const byFeedbackType = {};
     const byCategory = {};
     const bySentiment = {};
+    const bySource = {};
     const byPlatformCategory = {};
+    const byFeedbackTypeCategory = {};
     const monthCounts = {};
     const sentimentMonth = {};
     const categoryMonth = {};
@@ -127,9 +154,14 @@ function createStore({ dataDir = DATA_DIR } = {}) {
         byCategory[it.category] = (byCategory[it.category] || 0) + 1;
         const pc = byPlatformCategory[it.provider] || (byPlatformCategory[it.provider] = {});
         pc[it.category] = (pc[it.category] || 0) + 1;
+        const tc = byFeedbackTypeCategory[it.feedback_type] || (byFeedbackTypeCategory[it.feedback_type] = {});
+        tc[it.category] = (tc[it.category] || 0) + 1;
       }
       if (it.sentiment != null) {
         bySentiment[it.sentiment] = (bySentiment[it.sentiment] || 0) + 1;
+      }
+      if (it.source != null && it.source !== '') {
+        bySource[it.source] = (bySource[it.source] || 0) + 1;
       }
       if (it.date) {
         const month = it.date.slice(0, 7); // YYYY-MM
@@ -185,7 +217,9 @@ function createStore({ dataDir = DATA_DIR } = {}) {
       by_feedback_type: byFeedbackType,
       by_category: byCategory,
       by_platform_category: byPlatformCategory,
+      by_feedback_type_category: byFeedbackTypeCategory,
       by_sentiment: bySentiment,
+      by_source: bySource,
       trend_by_month: trendByMonth,
       sentiment_trend_by_month: sentimentTrendByMonth,
       trend_by_platform_month: trendByPlatformMonth,

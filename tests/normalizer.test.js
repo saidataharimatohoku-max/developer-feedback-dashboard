@@ -138,8 +138,13 @@ test('feedback_type: rule 3 complaint via complaint category', () => {
   assert.strictEqual(feedbackType({ summary: 'down again', category: 'downtime', sentiment: 'neutral' }), 'complaint');
 });
 
-test('feedback_type: rule 4 positive via neutral, no other cues', () => {
-  assert.strictEqual(feedbackType({ summary: 'works great', category: 'other', sentiment: 'neutral' }), 'positive');
+test('feedback_type: rule 4 positive only via explicit positive sentiment', () => {
+  assert.strictEqual(feedbackType({ summary: 'works great', category: 'other', sentiment: 'positive' }), 'positive');
+});
+
+test('feedback_type: rule 5 neutral via neutral/mixed, no other cues', () => {
+  assert.strictEqual(feedbackType({ summary: 'just a mention', category: 'other', sentiment: 'neutral' }), 'neutral');
+  assert.strictEqual(feedbackType({ summary: 'just a mention', category: 'other', sentiment: 'mixed' }), 'neutral');
 });
 
 test('feedback_type: rule 5 fallback complaint when sentiment unknown', () => {

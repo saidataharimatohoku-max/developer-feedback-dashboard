@@ -2,11 +2,24 @@
 
 _Generated: 2026-06-24 · Window: last 365 days (plus a few older notable items)_
 
-**Scope & caveats:** This summary is computed only from the existing normalized
-feedback in `data/` — **7 items total (6 Together AI, 1 Fireworks AI)**. This is a
-small sample, so all figures and trends are framed as **"based on the current sample"
-and are not definitive**. Every item is `verified: false`; nothing here is independently
+**Scope & caveats:** The **curated deep-dive** in this document reviews an initial
+hand-picked sample of **7 items (6 Together AI, 1 Fireworks AI)** — see the auto-updated
+**Live snapshot** below for current totals across all providers. The curated sample is
+small, so its figures and trends are framed as **"based on the current sample"
+and are not definitive**. Every curated item is `verified: false`; nothing here is independently
 confirmed. `feedback_type` follows the ARCHITECTURE.md §3.1 mapping rules.
+
+<!-- AUTOSTATS:LIVE:START -->
+_Live snapshot — auto-updated by tools/refresh.js as of 2026-07-09:_
+
+- **Total items tracked:** 366 (37 hand-curated + 329 auto-collected; all auto items `verified: false`)
+- **By platform:** OpenAI 144 · Azure Kubernetes Service 67 · Azure AI Foundry 48 · Azure Machine Learning 38 · Fireworks AI 32 · Tinker API 19 · Together AI 18
+- **By feedback type:** complaint 277 · question 66 · feature_request 23 · neutral 0 · positive 0
+- **By category (top 6):** downtime 95 · other 69 · latency 43 · model_quality 35 · support 30 · docs 29
+- **By sentiment:** negative 338 · neutral 21 · mixed 7
+
+_The curated deep-dive below covers the initial hand-reviewed sample and is intentionally narrower than these live totals._
+<!-- AUTOSTATS:LIVE:END -->
 
 ## Overall snapshot (current sample)
 

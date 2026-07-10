@@ -65,28 +65,60 @@ function serveStatic(pathname, res) {
   });
 }
 
-function handleFeedback(query, res) {
-  const platform = query.get('platform');
-  const feedbackType = query.get('feedback_type');
-  const category = query.get('category');
-  const q = query.get('q');
+// Read all supported filter params from the query string into a plain object.
+// Values default to null when absent so store.filter() ignores them.
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const SENTIMENTS = ['negative', 'mixed', 'neutral', 'positive'];
 
-  if (platform != null && !store.knownPlatform(platform)) {
-    return sendJson(res, 400, { error: 'invalid platform', allowed: Array.from(store.platforms) });
-  }
-  if (feedbackType != null && !store.FEEDBACK_TYPES.includes(String(feedbackType).toLowerCase())) {
-    return sendJson(res, 400, { error: 'invalid feedback_type', allowed: store.FEEDBACK_TYPES });
-  }
-  if (category != null && !store.CATEGORIES.includes(String(category).toLowerCase())) {
-    return sendJson(res, 400, { error: 'invalid category', allowed: store.CATEGORIES });
-  }
-
-  const filters = {
-    platform: platform != null ? String(platform) : null,
-    feedback_type: feedbackType != null ? String(feedbackType) : null,
-    category: category != null ? String(category) : null,
-    q: q != null ? String(q) : null,
+function readFilters(query) {
+  const get = (k) => {
+    const v = query.get(k);
+    return v != null ? String(v) : null;
   };
+  return {
+    platform: get('platform'),
+    feedback_type: get('feedback_type'),
+    category: get('category'),
+    q: get('q'),
+    source: get('source'),
+    sentiment: get('sentiment'),
+    verified: get('verified'),
+    date_from: get('date_from'),
+    date_to: get('date_to'),
+  };
+}
+
+// Validate the filter values that have a fixed allowed set; return an error
+// object (for a 400) or null when everything is acceptable.
+function validateFilters(f) {
+  if (f.platform != null && !store.knownPlatform(f.platform)) {
+    return { error: 'invalid platform', allowed: Array.from(store.platforms) };
+  }
+  if (f.feedback_type != null && !store.FEEDBACK_TYPES.includes(f.feedback_type.toLowerCase())) {
+    return { error: 'invalid feedback_type', allowed: store.FEEDBACK_TYPES };
+  }
+  if (f.category != null && !store.CATEGORIES.includes(f.category.toLowerCase())) {
+    return { error: 'invalid category', allowed: store.CATEGORIES };
+  }
+  if (f.sentiment != null && !SENTIMENTS.includes(f.sentiment.toLowerCase())) {
+    return { error: 'invalid sentiment', allowed: SENTIMENTS };
+  }
+  if (f.verified != null && !['true', 'false'].includes(f.verified.toLowerCase())) {
+    return { error: 'invalid verified', allowed: ['true', 'false'] };
+  }
+  if (f.date_from != null && !DATE_RE.test(f.date_from)) {
+    return { error: 'invalid date_from', allowed: 'YYYY-MM-DD' };
+  }
+  if (f.date_to != null && !DATE_RE.test(f.date_to)) {
+    return { error: 'invalid date_to', allowed: 'YYYY-MM-DD' };
+  }
+  return null;
+}
+
+function handleFeedback(query, res) {
+  const filters = readFilters(query);
+  const err = validateFilters(filters);
+  if (err) return sendJson(res, 400, err);
 
   const items = store.filter(filters);
   sendJson(res, 200, { count: items.length, filters_applied: filters, items });
@@ -126,27 +158,11 @@ function toCsv(items) {
 }
 
 function handleFeedbackCsv(query, res) {
-  const platform = query.get('platform');
-  const feedbackType = query.get('feedback_type');
-  const category = query.get('category');
-  const q = query.get('q');
+  const filters = readFilters(query);
+  const err = validateFilters(filters);
+  if (err) return sendJson(res, 400, err);
 
-  if (platform != null && !store.knownPlatform(platform)) {
-    return sendJson(res, 400, { error: 'invalid platform', allowed: Array.from(store.platforms) });
-  }
-  if (feedbackType != null && !store.FEEDBACK_TYPES.includes(String(feedbackType).toLowerCase())) {
-    return sendJson(res, 400, { error: 'invalid feedback_type', allowed: store.FEEDBACK_TYPES });
-  }
-  if (category != null && !store.CATEGORIES.includes(String(category).toLowerCase())) {
-    return sendJson(res, 400, { error: 'invalid category', allowed: store.CATEGORIES });
-  }
-
-  const items = store.filter({
-    platform: platform != null ? String(platform) : null,
-    feedback_type: feedbackType != null ? String(feedbackType) : null,
-    category: category != null ? String(category) : null,
-    q: q != null ? String(q) : null,
-  });
+  const items = store.filter(filters);
 
   // Prepend a UTF-8 BOM so Excel renders accents/symbols correctly.
   const body = '\uFEFF' + toCsv(items);

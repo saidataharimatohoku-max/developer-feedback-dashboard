@@ -1,6 +1,6 @@
 {
   "provider": "Tinker API",
-  "generated_at": "2026-06-27T00:50:23.246Z",
+  "generated_at": "2026-07-06T14:42:03.596Z",
   "window": "last 365 days (live refresh)",
   "source_count": 0,
   "note": "Tinker is the model fine-tuning/training API from Thinking Machines Lab (thinkingmachines.ai/tinker). This dataset is populated automatically by tools/refresh.js from public Hacker News and GitHub mentions. Because 'Tinker' is a very common word, matching is restricted to the product's own identifiers (thinkingmachines.ai, the thinking-machines-lab GitHub org, the tinker-cookbook repo, and the phrase 'Tinker API'). Auto-collected items are unverified keyword-heuristic guesses.",
@@ -240,6 +240,34 @@
       "source_url": "https://github.com/NovaSky-AI/SkyRL/issues/1552",
       "corroborating_urls": [],
       "date": "2026-04-22",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "tk-0018",
+      "complaint": "Auto-collected GitHub mention referencing Tinker API: \"WebClipper fails to capture all of the following page in full page. When clipping https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/ it fails to capture the full length of the document. It is truncating the document by stopping before the \"Batch-invariant attention\"",
+      "quote": "WebClipper fails to capture all of the following page in full page. When clipping https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/ it fails to capture the full length of the document. It is truncating the document by stopping before the \"Batch-invariant attention",
+      "category": "other",
+      "sentiment": "negative",
+      "author_handle": "MarkWard0110",
+      "source": "github",
+      "source_url": "https://github.com/OneNoteDev/WebClipper/issues/666",
+      "corroborating_urls": [],
+      "date": "2026-07-06",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "tk-0019",
+      "complaint": "Auto-collected GitHub mention referencing Tinker API: \"Research adjacent Tinker tools: tinkpad and tinker-cost. Adjacent tools already appear in tinker-cookbook cost/usage issues:\\n\\n- tinkpad: terminal UI for Tinker runs/checkpoints\\n- tinker-cost: pre-run pricing estimator\\n\\nWorkbench should not duplicate them blindly. Deliverables:\\n\\n- ma\"",
+      "quote": "Research adjacent Tinker tools: tinkpad and tinker-cost. Adjacent tools already appear in tinker-cookbook cost/usage issues:\\n\\n- tinkpad: terminal UI for Tinker runs/checkpoints\\n- tinker-cost: pre-run pricing estimator\\n\\nWorkbench should not duplicate them blindly. Deliverables:\\n\\n- ma",
+      "category": "pricing",
+      "sentiment": "negative",
+      "author_handle": "Abhishek21g",
+      "source": "github",
+      "source_url": "https://github.com/Abhishek21g/tinker-workbench/issues/4",
+      "corroborating_urls": [],
+      "date": "2026-07-04",
       "verified": false,
       "auto_collected": true
     }

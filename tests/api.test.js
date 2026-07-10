@@ -86,7 +86,7 @@ test('q can match text that only appears in original_text', () => {
 
 test('store exposes the enum allow-lists used for 400 validation', () => {
   const store = freshStore();
-  assert.deepStrictEqual(store.FEEDBACK_TYPES, ['complaint', 'question', 'feature_request', 'positive']);
+  assert.deepStrictEqual(store.FEEDBACK_TYPES, ['complaint', 'question', 'feature_request', 'neutral', 'positive']);
   assert.ok(store.CATEGORIES.includes('latency'));
   // The exact predicates server.js uses to accept/reject query params.
   assert.ok(store.FEEDBACK_TYPES.includes('complaint'));
@@ -119,6 +119,7 @@ test('summary by_feedback_type has exact counts for the real dataset', () => {
     complaint: 12,
     question: 0,
     feature_request: 1,
+    neutral: 0,
     positive: 0,
   });
 });
@@ -225,5 +226,5 @@ test('platform-scoped empty summary returns total 0, not an error', () => {
   assert.deepStrictEqual(s.by_platform, {});
   assert.strictEqual(s.undated_count, 0);
   assert.deepStrictEqual(s.trend_by_month, []);
-  assert.deepStrictEqual(s.by_feedback_type, { complaint: 0, question: 0, feature_request: 0, positive: 0 });
+  assert.deepStrictEqual(s.by_feedback_type, { complaint: 0, question: 0, feature_request: 0, neutral: 0, positive: 0 });
 });

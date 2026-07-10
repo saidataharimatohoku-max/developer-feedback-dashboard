@@ -1,6 +1,6 @@
 {
   "provider": "Together AI",
-  "generated_at": "2026-06-26T15:17:10.647Z",
+  "generated_at": "2026-07-06T16:59:01.519Z",
   "window": "last 365 days (live refresh plus a few older notable items)",
   "source_count": 6,
   "note": "Merged dataset (2026-06-26): the original Hacker News sweep plus a live refresh that added new HN items and the official Together AI status page. Reddit, Trustpilot, and G2 blocked automated requests (HTTP 403) and were not included. Most public HN mentions of Together AI were neutral or positive (cheap pricing, wide model support, ZDR/privacy); the items below are the genuine negative-leaning complaints found. BIAS FLAGS: tg-0003 (jadendhm) and tg-0009 (booty) were posted by people launching competing routing products (ApeKey), and tg-0004 (vshah1016) is a competitor benchmark - treat their comparative claims accordingly.",
@@ -199,7 +199,7 @@
       "id": "tg-0015",
       "complaint": "Auto-collected GitHub mention referencing Together AI: \"bug: max_output_tokens setting doesn't work with Together.ai. **Version:** 0.8.2 ## Describe the Bug When Max Output Tokens is set (per #7799) using Together.ai (remote provider), Bad Request is returned. ## Steps to Reproduce 1. Configure a Togethe\"",
       "quote": "bug: max_output_tokens setting doesn't work with Together.ai. **Version:** 0.8.2 ## Describe the Bug When Max Output Tokens is set (per #7799) using Together.ai (remote provider), Bad Request is returned. ## Steps to Reproduce 1. Configure a Togethe",
-      "category": "other",
+      "category": "rate_limits",
       "sentiment": "negative",
       "author_handle": "brankoradovanovic-mcom",
       "source": "github",
@@ -234,6 +234,20 @@
       "source_url": "https://github.com/ShenzheZhu/humanly/issues/131",
       "corroborating_urls": [],
       "date": "2026-05-17",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "tg-0018",
+      "complaint": "Auto-collected GitHub mention referencing Together AI: \"tisfiable. make: *** [install] Error 1 ``` ### Error Message and Stack Trace (if applicable) ```shell ``` ### Description When i try to use together ai latest version it has deps issues with the existing v1 of other providers: \"uv sync --all-packages × No solution found when resolving dependencie...\"",
+      "quote": "tisfiable. make: *** [install] Error 1 ``` ### Error Message and Stack Trace (if applicable) ```shell ``` ### Description When i try to use together ai latest version it has deps issues with the existing v1 of other providers: \"uv sync --all-packages × No solution found when resolving dependencie...",
+      "category": "other",
+      "sentiment": "negative",
+      "author_handle": "smartinezbragado",
+      "source": "github",
+      "source_url": "https://github.com/langchain-ai/langchain/issues/36104",
+      "corroborating_urls": [],
+      "date": "2026-03-19",
       "verified": false,
       "auto_collected": true
     }

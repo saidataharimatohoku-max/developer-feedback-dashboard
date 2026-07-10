@@ -66,7 +66,7 @@ test('GET /api/health returns ok and item count', { skip }, async () => {
     assert.strictEqual(status, 200);
     assert.strictEqual(body.status, 'ok');
     assert.strictEqual(body.items_loaded, 13);
-    assert.ok(Array.isArray(body.sources) && body.sources.length === 6);
+    assert.ok(Array.isArray(body.sources) && body.sources.length === 7);
   });
 });
 
@@ -82,6 +82,11 @@ test('GET /api/feedback (no filters) returns all 13 items with the contract shap
       feedback_type: null,
       category: null,
       q: null,
+      source: null,
+      sentiment: null,
+      verified: null,
+      date_from: null,
+      date_to: null,
     });
   });
 });
@@ -126,7 +131,7 @@ test('GET /api/feedback rejects invalid feedback_type with 400', { skip }, async
     const { status, body } = await getJson(port, '/api/feedback?feedback_type=bogus');
     assert.strictEqual(status, 400);
     assert.strictEqual(body.error, 'invalid feedback_type');
-    assert.deepStrictEqual(body.allowed, ['complaint', 'question', 'feature_request', 'positive']);
+    assert.deepStrictEqual(body.allowed, ['complaint', 'question', 'feature_request', 'neutral', 'positive']);
   });
 });
 
@@ -158,6 +163,7 @@ test('GET /api/summary returns documented aggregate shape', { skip }, async () =
       complaint: 12,
       question: 0,
       feature_request: 1,
+      neutral: 0,
       positive: 0,
     });
     assert.strictEqual(body.undated_count, 0);

@@ -12,6 +12,7 @@ const SOURCE_FILES = [
   'tinker-api-complaints.json',
   'azure-kubernetes-service-complaints.json',
   'azure-machine-learning-complaints.json',
+  'azure-ai-foundry-complaints.json',
   'openai-complaints.json',
 ];
 
