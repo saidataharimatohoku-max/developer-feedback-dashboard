@@ -1,6 +1,6 @@
 {
   "provider": "Azure Machine Learning",
-  "generated_at": "2026-07-08T15:00:30.010Z",
+  "generated_at": "2026-07-13T15:00:28.682Z",
   "window": "last ~24 months (curated via the azure-machine-learning-complaints skill)",
   "source_count": 36,
   "note": "Curated by the azure-machine-learning-complaints skill from PUBLIC sources: genuine bug reports filed by real users in Microsoft's official Azure/azureml-examples GitHub repo (each labelled 'bug' or 'enhancement' by the repo), plus a public Hacker News thread. Every item links to its original public post and is presented as user-reported. Because 'ML' is generic, only items that clearly reference Azure Machine Learning (managed online endpoints, AML compute, Azure ML Studio, the azure-ai-ml SDK / az ml CLI) are included. Most are single-source so verified=false, but unlike keyword auto-collection these were hand-reviewed. Public HN mentions of Azure ML were overwhelmingly old marketing/launch posts (2014-2019); the genuine problem reports below come almost entirely from the product's GitHub issue tracker.",
@@ -525,6 +525,20 @@
       "source_url": "https://stackoverflow.com/questions/79977743/azure-machine-learning-studio-notebook-editor-crashes-when-opening-any-ipynb-fi",
       "corroborating_urls": [],
       "date": "2026-07-08",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "aml-0021",
+      "complaint": "Auto-collected GitHub mention referencing Azure Machine Learning: \"erless Builds. ## Title How to properly pass workspace connection credentials to Docker builds on AML serverless compute ## Description ### Problem Statement I'm trying to set up a Docker build on Azure ML serverless compute that needs to authenticate to a private PyPI feed during the image build...\"",
+      "quote": "erless Builds. ## Title How to properly pass workspace connection credentials to Docker builds on AML serverless compute ## Description ### Problem Statement I'm trying to set up a Docker build on Azure ML serverless compute that needs to authenticate to a private PyPI feed during the image build...",
+      "category": "other",
+      "sentiment": "negative",
+      "author_handle": "acube3",
+      "source": "github",
+      "source_url": "https://github.com/Azure/MachineLearningNotebooks/issues/1985",
+      "corroborating_urls": [],
+      "date": "2025-11-07",
       "verified": false,
       "auto_collected": true
     }

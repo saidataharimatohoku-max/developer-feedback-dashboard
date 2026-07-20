@@ -23,9 +23,13 @@
     {
       sel: '.site-header',
       ms: 6000,
-      caption:
-        'Developer Feedback Dashboard — a local, zero-dependency app that ' +
-        'monitors PUBLIC developer feedback about six AI / ML providers.',
+      caption: (s) => {
+        const n = s && s.by_platform ? Object.keys(s.by_platform).length : 'several';
+        return (
+          'Developer Feedback Dashboard — a local, zero-dependency app that ' +
+          `monitors PUBLIC developer feedback about ${n} AI / ML providers.`
+        );
+      },
     },
     {
       sel: '#exec-summary-body',
@@ -114,9 +118,16 @@
     {
       sel: '#health-cards',
       ms: 5500,
-      caption:
-        'Provider health — a concern score per provider from feedback volume, ' +
-        'verified downtime and recent momentum, with a spike marker.',
+      caption: () => {
+        const el = document.querySelector('#health-cards .health-card .provider-name');
+        const top = el ? el.textContent.trim() : '';
+        return (
+          'Provider health — a fair concern score driven by each provider\u2019s ' +
+          'COMPLAINT RATE (share of its own feedback that is a complaint, not raw ' +
+          'volume), plus downtime share and recent momentum, with a spike marker.' +
+          (top ? ` Right now ${top} ranks highest.` : '')
+        );
+      },
     },
     {
       sel: '#chart-sentiment',
@@ -158,6 +169,9 @@
   const qs = (sel) => document.querySelector(sel);
   let running = false;
   let stopRequested = false;
+  // Live summary snapshot, fetched when the demo starts, so captions can state
+  // current facts (provider count, etc.) instead of hard-coded numbers.
+  let demoSummary = null;
 
   function injectStyles() {
     if (document.getElementById('demo-styles')) return;
@@ -339,12 +353,19 @@
 
     buildOverlay();
     captionEl.innerHTML = 'Get ready — recording tip: start your recorder now.';
+    // Grab a fresh data snapshot so dynamic captions reflect the latest numbers.
+    try {
+      demoSummary = await fetch('/api/summary').then((r) => r.json());
+    } catch (err) {
+      demoSummary = null;
+    }
     await countdown();
 
     for (let i = 0; i < STEPS.length && !stopRequested; i++) {
       const step = STEPS[i];
       stepEl.textContent = `Step ${i + 1} / ${STEPS.length}`;
-      captionEl.innerHTML = step.caption;
+      captionEl.innerHTML =
+        typeof step.caption === 'function' ? step.caption(demoSummary) : step.caption;
       progressEl.style.width = `${Math.round(((i + 1) / STEPS.length) * 100)}%`;
 
       if (step.waitBefore) await sleep(step.waitBefore);

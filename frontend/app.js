@@ -79,6 +79,9 @@ const els = {
   comparison: document.getElementById('comparison-table'),
   latencyChart: document.getElementById('chart-latency'),
   latencyCalloutText: document.getElementById('latency-callout-text'),
+  latencyCalloutTitle: document.getElementById('latency-callout-title'),
+  latencyFigLabel: document.getElementById('latency-fig-label'),
+  latencyFigNote: document.getElementById('latency-fig-note'),
   byCategory: document.getElementById('by-category'),
   aksChartCategory: document.getElementById('aks-chart-category'),
   aksChartTrend: document.getElementById('aks-chart-trend'),
@@ -87,6 +90,11 @@ const els = {
   aksSpikeMonth: document.getElementById('aks-spike-month'),
   aksSpikeCaption: document.getElementById('aks-spike-caption'),
   aksImpactCaption: document.getElementById('aks-impact-caption'),
+  ddName: document.getElementById('dd-name'),
+  ddIntro: document.getElementById('dd-intro'),
+  ddCatCaption: document.getElementById('dd-cat-caption'),
+  ddTrendCaption: document.getElementById('dd-trend-caption'),
+  ddFootnote: document.getElementById('dd-footnote'),
   chartSource: document.getElementById('chart-source'),
   sourcesTable: document.getElementById('sources-table'),
   form: document.getElementById('filter-form'),
@@ -708,15 +716,39 @@ function renderBreakdownTrend() {
 }
 
 // ---------------------------------------------------------------------------
-// AKS deep-dive section: category chart, monthly trend, spike reason + impact.
+// Top-provider deep-dive section: category chart, monthly trend, spike reason +
+// impact. Targets whichever provider currently has the most collected feedback.
 // ---------------------------------------------------------------------------
 const AKS_NAME = 'Azure Kubernetes Service';
+
+// Provider display name → API/filter slug (e.g. "Azure Kubernetes Service" →
+// "azure-kubernetes-service", "OpenAI" → "openai").
+function providerSlug(name) {
+  return String(name).toLowerCase().replace(/\s+/g, '-');
+}
 
 async function renderAksSection(data) {
   if (!els.aksChartCategory) return;
 
-  // Category breakdown for AKS (from the summary's per-provider category map).
-  const catObj = (data.by_platform_category || {})[AKS_NAME] || {};
+  // Pick the provider with the most collected feedback right now.
+  const byPlatform = data.by_platform || {};
+  const ranked = Object.entries(byPlatform).sort((a, b) => b[1] - a[1]);
+  const NAME = ranked.length ? ranked[0][0] : AKS_NAME;
+  const slug = providerSlug(NAME);
+
+  // Fill the dynamic labels/headings for the chosen provider.
+  if (els.ddName) els.ddName.textContent = NAME;
+  if (els.ddIntro) {
+    els.ddIntro.textContent =
+      `A focused look at ${NAME} — the provider with the most collected feedback ` +
+      `right now — covering what developers raise, when the recent data spiked, ` +
+      `and what it means for the business.`;
+  }
+  if (els.ddCatCaption) els.ddCatCaption.textContent = `${NAME} issues by category`;
+  if (els.ddTrendCaption) els.ddTrendCaption.textContent = `${NAME} feedback per month`;
+
+  // Category breakdown for the provider (from the per-provider category map).
+  const catObj = (data.by_platform_category || {})[NAME] || {};
   const catEntries = Object.entries(catObj).sort((a, b) => b[1] - a[1]);
   if (catEntries.length) {
     renderBarChart(els.aksChartCategory, catEntries, categoryColor, 'Issue category', 'Number of posts');
@@ -724,18 +756,18 @@ async function renderAksSection(data) {
     emptyChart(els.aksChartCategory);
   }
 
-  // Monthly trend for AKS (from the per-provider monthly timeline).
+  // Monthly trend for the provider (from the per-provider monthly timeline).
   const tp = data.trend_by_platform_month || {};
   const months = tp.months || [];
-  const aksSeries = (tp.series || []).find((s) => s.key === AKS_NAME);
-  const points = aksSeries ? months.map((m, i) => ({ label: m, count: aksSeries.counts[i] || 0 })) : [];
+  const provSeries = (tp.series || []).find((s) => s.key === NAME);
+  const points = provSeries ? months.map((m, i) => ({ label: m, count: provSeries.counts[i] || 0 })) : [];
   if (points.length) renderTrendChart(els.aksChartTrend, points);
   else emptyChart(els.aksChartTrend);
 
-  // Pull raw AKS items to ground the "why" and "impact" narratives.
+  // Pull raw items for this provider to ground the "why" and "impact" narratives.
   let items = [];
   try {
-    const res = await fetchJson('/api/feedback?platform=azure-kubernetes-service');
+    const res = await fetchJson(`/api/feedback?platform=${encodeURIComponent(slug)}`);
     items = res.items || [];
   } catch (err) {
     items = [];
@@ -773,9 +805,18 @@ async function renderAksSection(data) {
       const dayEntries = Object.entries(byDay).sort((a, b) => a[0].localeCompare(b[0]));
       const days = dayEntries.length;
       const busiest = dayEntries.reduce((m, [, c]) => Math.max(m, c), 0);
-      const ghShare = spikeItems.length
-        ? Math.round((spikeItems.filter((i) => i.source === 'github').length / spikeItems.length) * 100)
-        : 0;
+
+      // Dominant source of the spike month (generic, not hard-coded to GitHub).
+      const srcCount = {};
+      spikeItems.forEach((i) => {
+        const s = i.source || 'unknown';
+        srcCount[s] = (srcCount[s] || 0) + 1;
+      });
+      const topSrcEntry = Object.entries(srcCount).sort((a, b) => b[1] - a[1])[0];
+      const topSrcKey = topSrcEntry ? topSrcEntry[0] : '';
+      const topSrcLabel = (SOURCE_META[topSrcKey] && SOURCE_META[topSrcKey].label) || topSrcKey || 'various sources';
+      const topSrcShare =
+        topSrcEntry && spikeItems.length ? Math.round((topSrcEntry[1] / spikeItems.length) * 100) : 0;
 
       const dayPoints = dayEntries.map(([day, count]) => ({
         label: String(Number(day)),
@@ -796,13 +837,13 @@ async function renderAksSection(data) {
           0,
         ).getDate();
         els.aksSpikeCaption.innerHTML =
-          `<strong>How to read this:</strong> if June's jump were a real outage, you would expect ` +
-          `a tall peak on one or two incident days. Instead the ${spike.count} posts are spread ` +
-          `thinly across <strong>${days} of the month's ${monthDays} days</strong>, with no day above ` +
-          `<strong>${busiest}</strong>. That flat, low line is the fingerprint of a scraper ` +
-          `backfilling old issues — not a live incident. <strong>${ghShare}%</strong> of June's items ` +
-          `came from the Azure/AKS GitHub tracker and all are unverified, so the spike reflects ` +
-          `<strong>when the data was collected, not a surge in real-world failures.</strong>`;
+          `<strong>How to read this:</strong> a real outage would show a tall peak on ` +
+          `one or two incident days. Instead ${monthLabel}'s ${spike.count} posts are ` +
+          `spread across <strong>${days} of the month's ${monthDays} days</strong>, with no ` +
+          `day above <strong>${busiest}</strong>. <strong>${topSrcShare}%</strong> came from ` +
+          `${escapeHtml(topSrcLabel)} and all are auto-collected and unverified — so the spike ` +
+          `largely reflects <strong>when the data was collected, not necessarily a surge in ` +
+          `real-world failures.</strong>`;
       }
     }
   }
@@ -839,9 +880,8 @@ async function renderAksSection(data) {
       if (els.aksImpactCaption) {
         const topArea = impactEntries[0][0];
         els.aksImpactCaption.textContent =
-          `Because AKS is the self-hosted / DIY path, these issues land on your engineers. ` +
-          `Most feedback maps to "${topArea}". Use this to prioritise themes — volume is ` +
-          `collection-weighted, so it is not an absolute risk measure.`;
+          `Most ${NAME} feedback maps to "${topArea}". Use this to prioritise themes — ` +
+          `volume is collection-weighted, so it is not an absolute risk measure.`;
       }
     } else {
       emptyChart(els.aksChartImpact);
@@ -996,9 +1036,9 @@ async function loadSummary() {
   // Data sources breakdown (very bottom of the page).
   renderSourcesSection(data);
 
-  // By category (sorted desc by count), each bar in its category colour.
+  // By category (sorted desc by count), each slice in its category colour.
   const catEntries = Object.entries(data.by_category || {}).sort((a, b) => b[1] - a[1]);
-  renderBarList(els.byCategory, catEntries, categoryColor);
+  renderPieChart(els.byCategory, catEntries, categoryColor);
 
   // Executive summary narrative (auto-generated from the same data).
   renderExecutiveSummary(data, catEntries);
@@ -1107,6 +1147,7 @@ function renderHealthSection(data) {
   if (!els.healthCards) return;
   const byP = data.by_platform || {};
   const byPC = data.by_platform_category || {};
+  const byPT = data.by_platform_type || {};
   const trend = data.trend_by_platform_month || { months: [], series: [] };
   const seriesByName = {};
   (trend.series || []).forEach((s) => {
@@ -1122,6 +1163,10 @@ function renderHealthSection(data) {
   // Gather raw factors per provider.
   const rows = providers.map((name) => {
     const volume = byP[name] || 0;
+    const complaints = (byPT[name] && byPT[name].complaint) || 0;
+    // Complaint rate = share of THIS provider's own feedback that is a complaint.
+    // Being a ratio, it is not skewed by how much data we happened to collect.
+    const complaintRate = volume ? complaints / volume : 0;
     const downtime = (byPC[name] && byPC[name].downtime) || 0;
     const counts = seriesByName[name] || [];
     const recent = counts.length ? counts[counts.length - 1] : 0;
@@ -1129,17 +1174,19 @@ function renderHealthSection(data) {
     const trailingAvg = prior.length ? prior.reduce((s, n) => s + n, 0) / prior.length : 0;
     const spike = trailingAvg > 0 && recent >= 1.5 * trailingAvg && recent >= 3;
     const spikeMonth = spike && trend.months.length ? trend.months[trend.months.length - 1] : null;
-    return { name, volume, downtime, recent, spike, spikeMonth };
+    return { name, volume, complaints, complaintRate, downtime, recent, spike, spikeMonth };
   });
 
-  const maxVol = Math.max(1, ...rows.map((r) => r.volume));
   const maxRecent = Math.max(1, ...rows.map((r) => r.recent));
 
   rows.forEach((r) => {
-    const volNorm = r.volume / maxVol;
+    // Fair concern index: driven by the complaint RATE (proportion of this
+    // provider's feedback that is a complaint) rather than raw volume, so a
+    // provider does not look worse simply because more of its posts were
+    // collected. Downtime share and recent momentum round it out.
     const downShare = r.volume ? r.downtime / r.volume : 0;
     const recentNorm = r.recent / maxRecent;
-    r.concern = Math.round(100 * (0.45 * volNorm + 0.3 * downShare + 0.25 * recentNorm));
+    r.concern = Math.round(100 * (0.5 * r.complaintRate + 0.3 * downShare + 0.2 * recentNorm));
     r.level = r.concern >= 66 ? 'high' : r.concern >= 33 ? 'medium' : 'low';
   });
 
@@ -1164,7 +1211,7 @@ function renderHealthSection(data) {
           <span class="health-badge health-badge-${r.level}">${levelLabel[r.level]}</span>
         </div>
         <div class="health-score">${r.concern}<span class="health-score-max">/100</span></div>
-        <div class="health-meta">${r.volume} items · ${r.downtime} downtime ${spikeHtml}</div>
+        <div class="health-meta">${r.volume} items · ${Math.round(r.complaintRate * 100)}% complaints · ${r.downtime} downtime ${spikeHtml}</div>
       </div>`;
     })
     .join('');
@@ -1173,7 +1220,11 @@ function renderHealthSection(data) {
 // Side-by-side category comparison across providers.
 function renderComparison(byPlatformCategory) {
   if (!els.comparison) return;
-  const providers = Object.keys(byPlatformCategory);
+  // Order providers by their total feedback volume (highest first, lowest last).
+  const providers = Object.keys(byPlatformCategory).sort((a, b) => {
+    const sum = (p) => Object.values(byPlatformCategory[p] || {}).reduce((s, n) => s + n, 0);
+    return sum(b) - sum(a);
+  });
   if (!providers.length) {
     els.comparison.innerHTML = '<p class="cmp-empty">No comparison data.</p>';
     return;
@@ -1227,35 +1278,75 @@ function renderComparison(byPlatformCategory) {
   els.comparison.innerHTML = head + rows;
 }
 
-// Latency-by-provider ranked list + a plain-language callout. Shows that
-// latency is the one complaint category present for every provider.
+// Ranked list + plain-language callout for the single most widespread issue
+// category — the one present across the most providers (ties broken by total
+// volume). Recomputed from the data every render, so it follows the data.
 function renderLatencyByProvider(data) {
   if (!els.latencyChart) return;
   const byPC = data.by_platform_category || {};
   const byP = data.by_platform || {};
   const providers = Object.keys(byP);
 
+  // Tally, per category: how many providers have it (coverage) and total volume.
+  const coverage = {};
+  const catTotal = {};
+  providers.forEach((p) => {
+    Object.entries(byPC[p] || {}).forEach(([cat, n]) => {
+      if (n > 0) {
+        coverage[cat] = (coverage[cat] || 0) + 1;
+        catTotal[cat] = (catTotal[cat] || 0) + n;
+      }
+    });
+  });
+
+  const cats = Object.keys(coverage);
+  if (!cats.length) return emptyChart(els.latencyChart);
+
+  // Focus category: widest provider coverage first, then highest total volume.
+  // Exclude the catch-all "other" bucket — it isn't a specific pain point.
+  const focusCandidates = cats.filter((c) => c !== 'other');
+  const focusCat = (focusCandidates.length ? focusCandidates : cats).sort(
+    (a, b) => coverage[b] - coverage[a] || catTotal[b] - catTotal[a],
+  )[0];
+  const focusLabel = labelize(focusCat);
+  const covered = coverage[focusCat];
+  const allCovered = covered === providers.length;
+  const fullCoverageCount = cats.filter((c) => coverage[c] === providers.length).length;
+
   const rows = providers
     .map((p, i) => {
-      const latency = (byPC[p] && byPC[p].latency) || 0;
+      const count = (byPC[p] && byPC[p][focusCat]) || 0;
       const total = byP[p] || 0;
-      const share = total ? Math.round((latency / total) * 100) : 0;
-      return { p, latency, share, color: PLATFORM_COLORS[i % PLATFORM_COLORS.length] };
+      const share = total ? Math.round((count / total) * 100) : 0;
+      return { p, count, share, color: PLATFORM_COLORS[i % PLATFORM_COLORS.length] };
     })
-    .filter((r) => r.latency > 0)
-    .sort((a, b) => b.latency - a.latency);
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count);
 
   if (!rows.length) return emptyChart(els.latencyChart);
-  const max = Math.max(...rows.map((r) => r.latency), 1);
+  const max = Math.max(...rows.map((r) => r.count), 1);
+
+  // Headings + captions follow the chosen category.
+  if (els.latencyCalloutTitle) {
+    els.latencyCalloutTitle.textContent = allCovered
+      ? `${focusLabel} is the universal pain point`
+      : `${focusLabel} is the most widespread pain point`;
+  }
+  if (els.latencyFigLabel) els.latencyFigLabel.textContent = `${focusLabel} complaints by provider`;
+  if (els.latencyFigNote) {
+    els.latencyFigNote.textContent =
+      `Bar = number of ${focusLabel.toLowerCase()} posts; the % is that provider's share of its own feedback that is about ${focusLabel.toLowerCase()}.`;
+  }
+  if (els.latencyChart) els.latencyChart.setAttribute('aria-label', `Ranked bar chart of ${focusLabel.toLowerCase()} feedback by provider`);
 
   els.latencyChart.innerHTML = `<ul class="lat-list">${rows
     .map((r) => {
-      const pct = Math.round((r.latency / max) * 100);
+      const pct = Math.round((r.count / max) * 100);
       return `
         <li class="lat-row">
           <span class="lat-name" title="${escapeHtml(r.p)}"><span class="bar-swatch" style="background:${r.color}"></span>${escapeHtml(r.p)}</span>
           <span class="bar-track"><span class="bar-fill" style="width:${pct}%;background:${r.color}"></span></span>
-          <span class="lat-num">${r.latency}</span>
+          <span class="lat-num">${r.count}</span>
           <span class="lat-share">${r.share}%</span>
         </li>`;
     })
@@ -1264,10 +1355,15 @@ function renderLatencyByProvider(data) {
   if (els.latencyCalloutText) {
     const top = rows[0];
     const byShare = [...rows].sort((a, b) => b.share - a.share)[0];
+    const coverageText = allCovered
+      ? `<strong>all ${providers.length} providers</strong> — ${
+          fullCoverageCount === 1 ? 'the only' : 'one of the few'
+        } issue categories present across every one`
+      : `<strong>${covered} of ${providers.length} providers</strong> — the most widely shared issue category`;
     els.latencyCalloutText.innerHTML =
-      `Latency shows up for <strong>all ${rows.length} providers</strong> — the only issue category present across every one. ` +
-      `<strong>${escapeHtml(top.p)}</strong> draws the most latency posts (${top.latency}), while ` +
-      `<strong>${escapeHtml(byShare.p)}</strong> is proportionally the worst, with ${byShare.share}% of its feedback about speed.`;
+      `${focusLabel} shows up for ${coverageText}. ` +
+      `<strong>${escapeHtml(top.p)}</strong> draws the most ${focusLabel.toLowerCase()} posts (${top.count}), while ` +
+      `<strong>${escapeHtml(byShare.p)}</strong> is proportionally the worst, with ${byShare.share}% of its feedback about ${focusLabel.toLowerCase()}.`;
   }
 }
 
@@ -1545,6 +1641,60 @@ function renderFilteredView(items) {
   renderFilteredChart(items);
 }
 
+// Zero-dependency SVG pie chart. entries = [[label, value], ...]; colorFor(label, i).
+function renderPieChart(target, entries, colorFor) {
+  if (!target) return;
+  const data = entries.filter(([, v]) => v > 0);
+  if (!data.length) return emptyChart(target);
+  const total = data.reduce((s, [, v]) => s + v, 0);
+
+  const cx = 150;
+  const cy = 150;
+  const r = 130;
+  let angle = -Math.PI / 2; // start at 12 o'clock
+
+  const slices = data.map(([label, value], i) => {
+    const frac = value / total;
+    const color = colorFor(label, i) || 'var(--accent)';
+    const pct = Math.round(frac * 100);
+    let shape;
+    if (data.length === 1) {
+      // A single category is a full circle (the arc path would be degenerate).
+      shape = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${color}"></circle>`;
+    } else {
+      const a0 = angle;
+      const a1 = angle + frac * Math.PI * 2;
+      const x0 = (cx + r * Math.cos(a0)).toFixed(2);
+      const y0 = (cy + r * Math.sin(a0)).toFixed(2);
+      const x1 = (cx + r * Math.cos(a1)).toFixed(2);
+      const y1 = (cy + r * Math.sin(a1)).toFixed(2);
+      const large = frac > 0.5 ? 1 : 0;
+      shape = `<path d="M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z" fill="${color}"><title>${escapeHtml(label)}: ${value} (${pct}%)</title></path>`;
+      angle = a1;
+    }
+    return { label, value, pct, color, shape };
+  });
+
+  const svg =
+    `<svg viewBox="0 0 300 300" class="pie-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">` +
+    `<g>${slices.map((s) => s.shape).join('')}</g></svg>`;
+
+  const legend =
+    `<ul class="pie-legend">` +
+    slices
+      .map(
+        (s) =>
+          `<li class="pie-legend-row">` +
+          `<span class="pie-swatch" style="background:${s.color}"></span>` +
+          `<span class="pie-legend-label">${escapeHtml(s.label)}</span>` +
+          `<span class="pie-legend-value">${s.value} · ${s.pct}%</span></li>`,
+      )
+      .join('') +
+    `</ul>`;
+
+  target.innerHTML = `<div class="pie-wrap">${svg}${legend}</div>`;
+}
+
 // The single plot: when a specific product is chosen it breaks down by category;
 // "All products" compares feedback counts across products.
 function renderFilteredChart(items) {
@@ -1569,7 +1719,7 @@ function renderFilteredChart(items) {
       return [l, n];
     });
     setCaption('Feedback by category');
-    renderBarChart(els.fvChart, entries, (l) => catColor[l] || 'var(--accent)', 'Category', 'Posts');
+    renderPieChart(els.fvChart, entries, (l) => catColor[l] || 'var(--accent)');
   } else {
     const entries = Object.entries(countBy(items, (it) => it.provider)).sort((a, b) => b[1] - a[1]);
     setCaption('Feedback by product');

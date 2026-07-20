@@ -1273,3 +1273,56 @@ input:focus {
 .fv-stat.fv-stat-low {
   border-left-color: #22c55e;
 }
+
+/* ---------------- Pie chart ---------------- */
+.pie-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pie-svg {
+  width: 240px;
+  height: 240px;
+  flex: 0 0 auto;
+}
+
+.pie-svg path,
+.pie-svg circle {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.pie-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  min-width: 180px;
+  flex: 1 1 180px;
+}
+
+.pie-legend-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.pie-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.pie-legend-label {
+  text-transform: capitalize;
+}
+
+.pie-legend-value {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

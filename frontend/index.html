@@ -57,8 +57,14 @@
             <div class="chart" id="chart-type" role="img"
               aria-label="Bar chart of feedback count by type"></div>
           </figure>
+          <figure class="chart-card">
+            <figcaption>Feedback by category</figcaption>
+            <div class="chart" id="by-category" role="img"
+              aria-label="Pie chart of feedback by category"></div>
+            <small class="caption-note">Each slice counts how many collected posts were classified into that category (one category per post, assigned by keyword rules; unmatched posts fall in “other”). It reflects volume of feedback per topic — not severity. Data collected from public developer forums — Hacker News, GitHub issues, Stack Overflow and the providers' official status pages.</small>
+          </figure>
           <figure class="chart-card chart-card-wide">
-            <figcaption>Feedback by type &amp; issue category
+            <figcaption>Issue breakdown by type
               <small class="caption-note">What each feedback type is actually about — pick a type to see its issues broken down by category.</small>
             </figcaption>
             <div class="fv-controls">
@@ -73,14 +79,6 @@
               aria-label="Bar chart of the selected feedback type broken down by issue category"></div>
           </figure>
         </div>
-
-        <div class="summary-grid">
-          <div class="summary-block">
-            <h3>By category</h3>
-            <ul class="bar-list" id="by-category"></ul>
-            <small class="caption-note">Each bar counts how many collected posts were classified into that category (one category per post, assigned by keyword rules; unmatched posts fall in “other”). It reflects volume of feedback per topic — not severity. Data collected from public developer forums — Hacker News, GitHub issues, Stack Overflow and the providers' official status pages.</small>
-          </div>
-        </div>
       </section>
 
       <!-- ============ Zone 2 · Explore feedback ============ -->
@@ -88,7 +86,7 @@
 
       <!-- ============ Filters ============ -->
       <section class="filters" aria-labelledby="filters-heading">
-        <h2 id="filters-heading">Feedback by category</h2>
+        <h2 id="filters-heading">Filter feedback</h2>
         <p class="chart-note">Narrow the feedback by platform, type, source, sentiment, verification, date or keyword. The stats and chart below update to match; the full list is further down the page.</p>
         <form id="filter-form" class="filter-form" role="search">
           <div class="field">
@@ -218,32 +216,32 @@
         <div class="insight-banner" id="trend-insight-breakdown" role="status" hidden></div>
       </section>
 
-      <!-- ============ AKS deep dive ============ -->
+      <!-- ============ Top-provider deep dive ============ -->
       <section class="aks-deep-dive" aria-labelledby="aks-heading">
         <details class="collapsible">
-          <summary id="aks-heading">AKS deep dive <span class="collapse-hint">— click to expand</span></summary>
-          <p class="chart-note">
-            A focused look at Azure Kubernetes Service (AKS) — the self-hosted / DIY
-            way to run models — covering what developers complain about, why the
-            recent data spiked, and what it means for the business.
+          <summary id="aks-heading"><span id="dd-name">Provider</span> deep dive <span class="collapse-hint">— click to expand</span></summary>
+          <p class="chart-note" id="dd-intro">
+            A focused look at the provider with the most collected feedback right
+            now — covering what developers raise, when the recent data spiked, and
+            what it means for the business.
           </p>
           <div class="aks-charts">
             <figure class="chart-card">
-              <figcaption>AKS issues by category</figcaption>
+              <figcaption id="dd-cat-caption">Issues by category</figcaption>
               <div class="chart" id="aks-chart-category" role="img"
-                aria-label="Bar chart of AKS feedback counts by issue category"></div>
+                aria-label="Bar chart of feedback counts by issue category"></div>
             </figure>
             <figure class="chart-card">
-              <figcaption>AKS feedback per month</figcaption>
+              <figcaption id="dd-trend-caption">Feedback per month</figcaption>
               <div class="chart" id="aks-chart-trend" role="img"
-                aria-label="Line chart of AKS feedback counts per month"></div>
+                aria-label="Line chart of feedback counts per month"></div>
             </figure>
           </div>
           <div class="aks-charts">
             <figure class="chart-card chart-card-wide">
               <figcaption>Why the spike — posts per day in <span id="aks-spike-month">the peak month</span></figcaption>
               <div class="chart" id="aks-chart-spike" role="img"
-                aria-label="Bar chart of AKS posts per day during the peak month"></div>
+                aria-label="Bar chart of posts per day during the peak month"></div>
               <small class="chart-takeaway" id="aks-spike-caption"></small>
             </figure>
           </div>
@@ -251,11 +249,11 @@
             <figure class="chart-card">
               <figcaption>Business impact by area</figcaption>
               <div class="chart" id="aks-chart-impact" role="img"
-                aria-label="Bar chart of AKS feedback grouped into business-impact areas"></div>
+                aria-label="Bar chart of feedback grouped into business-impact areas"></div>
               <small class="chart-takeaway" id="aks-impact-caption"></small>
             </figure>
           </div>
-          <small class="caption-note">AKS data collected from public developer forums — the Azure/AKS GitHub issue tracker, Stack Overflow and Hacker News. Items are auto-collected and unverified; counts reflect volume of feedback, not severity.</small>
+          <small class="caption-note" id="dd-footnote">Data collected from public developer forums — GitHub issues, Stack Overflow, Hacker News and the providers' official status pages. Items are auto-collected and unverified; counts reflect volume of feedback, not severity.</small>
         </details>
       </section>
 
@@ -263,12 +261,14 @@
       <section class="health" aria-labelledby="health-heading">
         <h2 id="health-heading">Provider health</h2>
         <p class="chart-note">
-          A heuristic <strong>concern index</strong> per provider, combining total
-          feedback volume, the share that is verified downtime, and recent momentum.
+          A heuristic <strong>concern index</strong> per provider, driven by the
+          <strong>complaint rate</strong> (the share of that provider's own feedback that is a
+          complaint — so bigger providers aren't penalised just for having more collected posts),
+          plus the share that is downtime and recent momentum.
           Higher = more developer concern. A ▲ marks a recent spike vs. the trailing average.
         </p>
         <div class="health-cards" id="health-cards" aria-live="polite"></div>
-        <small class="caption-note">Heuristic and relative — a comparison aid, not an official reliability rating.</small>
+        <small class="caption-note">Heuristic and relative — a comparison aid, not an official reliability rating. Complaint rate is a proportion of collected public feedback, not a per-user rate (provider user counts are not public).</small>
       </section>
 
       <!-- ============ Provider comparison ============ -->
@@ -281,14 +281,14 @@
         <div class="comparison-table" id="comparison-table"></div>
 
         <div class="callout callout-latency" id="latency-callout">
-          <h3>Latency is the universal pain point</h3>
+          <h3 id="latency-callout-title">The most widespread pain point</h3>
           <p id="latency-callout-text"></p>
           <figure class="chart-card chart-card-wide">
-            <figcaption>Latency complaints by provider
-              <small class="caption-note">Bar = number of latency posts; the % is that provider's share of its own feedback that is about latency.</small>
+            <figcaption><span id="latency-fig-label">Complaints by provider</span>
+              <small class="caption-note" id="latency-fig-note">Bar = number of posts in this category; the % is that provider's share of its own feedback in this category.</small>
             </figcaption>
             <div class="chart" id="chart-latency" role="img"
-              aria-label="Ranked bar chart of latency-related feedback by provider"></div>
+              aria-label="Ranked bar chart of the most widespread issue category by provider"></div>
           </figure>
         </div>
       </section>

@@ -1,50 +1,50 @@
 {
-  "generated_at": "2026-07-09T15:00:38.014Z",
+  "generated_at": "2026-07-20T15:00:28.577Z",
   "note": "Auto-generated from the live normalized data in data/ by tools/refresh.js; computed figures match /api/summary. Includes auto-collected items (verified:false). top_issues = the 5 most recent dated complaint/feature_request items.",
-  "total": 366,
+  "total": 424,
   "curated_total": 37,
-  "auto_collected_total": 329,
+  "auto_collected_total": 387,
   "by_platform": {
-    "Together AI": 18,
-    "Fireworks AI": 32,
-    "Tinker API": 19,
-    "Azure Kubernetes Service": 67,
-    "Azure Machine Learning": 38,
-    "Azure AI Foundry": 48,
-    "OpenAI": 144
+    "Together AI": 21,
+    "Fireworks AI": 33,
+    "Tinker API": 21,
+    "Azure Kubernetes Service": 74,
+    "Azure Machine Learning": 39,
+    "Azure AI Foundry": 50,
+    "OpenAI": 186
   },
   "by_feedback_type": {
-    "complaint": 277,
-    "question": 66,
+    "complaint": 332,
+    "question": 69,
     "feature_request": 23,
     "neutral": 0,
     "positive": 0
   },
   "by_category": {
-    "docs": 29,
-    "latency": 43,
+    "docs": 30,
+    "latency": 46,
     "pricing": 15,
-    "other": 69,
-    "downtime": 95,
-    "billing": 20,
-    "model_quality": 35,
+    "other": 79,
+    "downtime": 131,
+    "billing": 22,
+    "model_quality": 39,
     "rate_limits": 19,
     "api_change": 11,
-    "support": 30
+    "support": 32
   },
   "by_sentiment": {
     "mixed": 7,
-    "negative": 338,
+    "negative": 396,
     "neutral": 21
   },
   "by_source": {
-    "hackernews": 43,
-    "statuspage": 68,
-    "github": 139,
+    "hackernews": 44,
+    "statuspage": 100,
+    "github": 156,
     "stackoverflow": 97,
     "serverfault": 12,
     "devops-stackexchange": 6,
-    "discourse": 1
+    "discourse": 9
   },
   "trend_by_month": [
     {
@@ -161,7 +161,7 @@
     },
     {
       "month": "2025-11",
-      "count": 6
+      "count": 7
     },
     {
       "month": "2025-12",
@@ -181,7 +181,7 @@
     },
     {
       "month": "2026-04",
-      "count": 29
+      "count": 45
     },
     {
       "month": "2026-05",
@@ -189,59 +189,59 @@
     },
     {
       "month": "2026-06",
-      "count": 98
+      "count": 99
     },
     {
       "month": "2026-07",
-      "count": 27
+      "count": 67
     }
   ],
   "undated_count": 0,
   "top_issues": [
     {
-      "id": "fw-0032",
-      "provider": "Fireworks AI",
-      "feedback_type": "complaint",
-      "category": "billing",
-      "summary": "Auto-collected GitHub mention referencing Fireworks AI: \"'Account mozilla-ai is suspended, possibly due to reaching the monthly spending limit or failure to pay past invoices. Please go to https://fireworks.ai/account/billing for more information.', 'code': 'PRECONDITION_FAILED', 'type': 'error'}} ``` Affected tests span `test_agent_loop`, `test_comple...\"",
-      "source_url": "https://github.com/mozilla-ai/any-llm/issues/1168",
-      "date": "2026-07-09"
-    },
-    {
-      "id": "aif-0028",
-      "provider": "Azure AI Foundry",
-      "feedback_type": "complaint",
-      "category": "support",
-      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"ps:// .services.ai.azure.com/openai/v1 ``` ### Problem Claude Code Router sends an unsupported request parameter named `reasoning_split` to Azure AI Foundry. Azure returns: ```json { \"error\": { \"code\": \"unrecognized_request_argument\", \"message\": \"Unrecognized request argument supplied: reasoning_...\"",
-      "source_url": "https://github.com/musistudio/claude-code-router/issues/1508",
-      "date": "2026-07-09"
-    },
-    {
-      "id": "aif-0029",
-      "provider": "Azure AI Foundry",
-      "feedback_type": "complaint",
-      "category": "other",
-      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"Add Azure AI Foundry Bicep Module (Standalone Deployment). # Issue: Add Azure AI Foundry Bicep Module (Standalone Deployment) ## Summary Create a reusable Bicep module that deploys Azure AI Foundry resour\"",
-      "source_url": "https://github.com/goodtocode/azure-arm/issues/47",
-      "date": "2026-07-09"
-    },
-    {
-      "id": "oa-0102",
+      "id": "oa-0165",
       "provider": "OpenAI",
       "feedback_type": "complaint",
-      "category": "other",
-      "summary": "Auto-collected GitHub mention referencing OpenAI: \"[Bug]: Hermes probes non‑OpenAI endpoints (/api/tags, /v1/props, /version) on api.openai.com, causing noisy 404s. ### Bug Description When using the openai-api provider with the default base URL https://api.openai.com/v1, Hermes sends additional HTTP GET requests to non‑OpenAI\"",
-      "source_url": "https://github.com/NousResearch/hermes-agent/issues/61421",
-      "date": "2026-07-09"
+      "category": "downtime",
+      "summary": "Auto-collected Status page mention referencing OpenAI: \"Elevated errors for GitHub-dependent ChatGPT and Codex workflows. Status: Resolved All impacted services have now fully recovered. Affected components Codex Web (Operational) Connectors/Apps (Operational) CLI (Operational) VS Code extension (Operational)\"",
+      "source_url": "https://status.openai.com//incidents/01KXYF4BTCV9DTZ5NDSFN716FH",
+      "date": "2026-07-20"
     },
     {
-      "id": "oa-0103",
+      "id": "oa-0166",
       "provider": "OpenAI",
-      "feedback_type": "feature_request",
-      "category": "docs",
-      "summary": "Auto-collected GitHub mention referencing OpenAI: \"hop sync so a top-level `core_tools:` list in `workshop.yaml` populates `Workshop.core_tools`. Example: ```yaml core_tools: - Claude Code - OpenAI API - Django ``` - Frontmatter validation: missing or empty `core_tools` is valid and stores `[]`. When present, `core_tools` must be a list of string...\"",
-      "source_url": "https://github.com/AI-Shipping-Labs/website/issues/1168",
-      "date": "2026-07-09"
+      "feedback_type": "complaint",
+      "category": "downtime",
+      "summary": "Auto-collected Status page mention referencing OpenAI: \"Elevated errors affecting ChatGPT. Status: Resolved All impacted services have now fully recovered. Affected components Voice mode (Operational) Conversations (Operational) Connectors/Apps (Operational) ChatGPT Work (Operational)\"",
+      "source_url": "https://status.openai.com//incidents/01KXXDNEAKEPRGFM661SBJJAM6",
+      "date": "2026-07-19"
+    },
+    {
+      "id": "tg-0021",
+      "provider": "Together AI",
+      "feedback_type": "complaint",
+      "category": "model_quality",
+      "summary": "Auto-collected GitHub mention referencing Together AI: \"Mark 6 removed Together.ai serverless models as status = \"deprecated\". ## Issue The following together.ai models still appear in the models.dev catalog as fully active, but are no longer serves them via the serverle\"",
+      "source_url": "https://github.com/anomalyco/models.dev/issues/3324",
+      "date": "2026-07-18"
+    },
+    {
+      "id": "oa-0167",
+      "provider": "OpenAI",
+      "feedback_type": "complaint",
+      "category": "downtime",
+      "summary": "Auto-collected Status page mention referencing OpenAI: \"Some users are unable to access Codex. Status: Resolved All impacted services have now fully recovered. Affected components CLI (Operational) Codex in ChatGPT Desktop (Operational)\"",
+      "source_url": "https://status.openai.com//incidents/01KXT44TAQQ2R0AZDDVSJGAC4H",
+      "date": "2026-07-18"
+    },
+    {
+      "id": "oa-0160",
+      "provider": "OpenAI",
+      "feedback_type": "complaint",
+      "category": "downtime",
+      "summary": "Auto-collected Status page mention referencing OpenAI: \"Codex 5.6-sol Experiencing Increased Server-Overload Errors. Status: Identified We have identified that users are experiencing elevated errors for the impacted services. We are working on implementing a mitigation.\"",
+      "source_url": "https://status.openai.com//incidents/01KXRHE25717D2WQ1WFMT2B7WZ",
+      "date": "2026-07-17"
     }
   ]
 }

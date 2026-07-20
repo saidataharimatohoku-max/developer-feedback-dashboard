@@ -137,6 +137,7 @@ function createStore({ dataDir = DATA_DIR } = {}) {
     const bySentiment = {};
     const bySource = {};
     const byPlatformCategory = {};
+    const byPlatformType = {};
     const byFeedbackTypeCategory = {};
     const monthCounts = {};
     const sentimentMonth = {};
@@ -150,6 +151,8 @@ function createStore({ dataDir = DATA_DIR } = {}) {
     for (const it of scoped) {
       byPlatform[it.provider] = (byPlatform[it.provider] || 0) + 1;
       byFeedbackType[it.feedback_type] = (byFeedbackType[it.feedback_type] || 0) + 1;
+      const pt = byPlatformType[it.provider] || (byPlatformType[it.provider] = {});
+      pt[it.feedback_type] = (pt[it.feedback_type] || 0) + 1;
       if (it.category != null) {
         byCategory[it.category] = (byCategory[it.category] || 0) + 1;
         const pc = byPlatformCategory[it.provider] || (byPlatformCategory[it.provider] = {});
@@ -215,6 +218,7 @@ function createStore({ dataDir = DATA_DIR } = {}) {
       total: scoped.length,
       by_platform: byPlatform,
       by_feedback_type: byFeedbackType,
+      by_platform_type: byPlatformType,
       by_category: byCategory,
       by_platform_category: byPlatformCategory,
       by_feedback_type_category: byFeedbackTypeCategory,

@@ -1,6 +1,6 @@
 {
   "provider": "Fireworks AI",
-  "generated_at": "2026-07-09T15:00:19.999Z",
+  "generated_at": "2026-07-16T15:00:15.264Z",
   "window": "last 365 days (live refresh plus the clearest older billing item)",
   "source_count": 24,
   "note": "Merged dataset (2026-06-26): the original Hacker News sweep plus a live refresh. Reddit, Trustpilot, and G2 blocked automated requests (HTTP 403) and were not included. Public sentiment toward Fireworks AI was overwhelmingly positive (repeatedly recommended as fast, low-latency, price-competitive, and quick to add new open models); genuine complaints were scarce, and the official status page showed ~99.98-100% 60-day uptime (no notable downtime). The items below are the few negative-leaning reports found, and most criticism is aimed at the open models being served (e.g. Kimi K2.5) rather than Fireworks' hosting. BIAS FLAG: fw-0003 (jadendhm) was posted by someone launching a competing routing product (ApeKey).",
@@ -447,6 +447,20 @@
       "source_url": "https://github.com/mozilla-ai/any-llm/issues/1168",
       "corroborating_urls": [],
       "date": "2026-07-09",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "fw-0033",
+      "complaint": "Auto-collected GitHub mention referencing Fireworks AI: \"latform, MCP-native for tool-calling, and integrating with trusty-memory for state/memory and the planned inference-provider adapter layer (fireworks.ai + more, landing in trusty-common). ## Scope This is an epic tracking issue for the design spec and its eventual phased implementation. The spec...\"",
+      "quote": "latform, MCP-native for tool-calling, and integrating with trusty-memory for state/memory and the planned inference-provider adapter layer (fireworks.ai + more, landing in trusty-common). ## Scope This is an epic tracking issue for the design spec and its eventual phased implementation. The spec...",
+      "category": "docs",
+      "sentiment": "negative",
+      "author_handle": "bobmatnyc",
+      "source": "github",
+      "source_url": "https://github.com/bobmatnyc/trusty-tools/issues/2791",
+      "corroborating_urls": [],
+      "date": "2026-07-16",
       "verified": false,
       "auto_collected": true
     }

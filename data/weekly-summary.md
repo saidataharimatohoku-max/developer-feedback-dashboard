@@ -10,13 +10,13 @@ and are not definitive**. Every curated item is `verified: false`; nothing here 
 confirmed. `feedback_type` follows the ARCHITECTURE.md §3.1 mapping rules.
 
 <!-- AUTOSTATS:LIVE:START -->
-_Live snapshot — auto-updated by tools/refresh.js as of 2026-07-09:_
+_Live snapshot — auto-updated by tools/refresh.js as of 2026-07-20:_
 
-- **Total items tracked:** 366 (37 hand-curated + 329 auto-collected; all auto items `verified: false`)
-- **By platform:** OpenAI 144 · Azure Kubernetes Service 67 · Azure AI Foundry 48 · Azure Machine Learning 38 · Fireworks AI 32 · Tinker API 19 · Together AI 18
-- **By feedback type:** complaint 277 · question 66 · feature_request 23 · neutral 0 · positive 0
-- **By category (top 6):** downtime 95 · other 69 · latency 43 · model_quality 35 · support 30 · docs 29
-- **By sentiment:** negative 338 · neutral 21 · mixed 7
+- **Total items tracked:** 424 (37 hand-curated + 387 auto-collected; all auto items `verified: false`)
+- **By platform:** OpenAI 186 · Azure Kubernetes Service 74 · Azure AI Foundry 50 · Azure Machine Learning 39 · Fireworks AI 33 · Together AI 21 · Tinker API 21
+- **By feedback type:** complaint 332 · question 69 · feature_request 23 · neutral 0 · positive 0
+- **By category (top 6):** downtime 131 · other 79 · latency 46 · model_quality 39 · support 32 · docs 30
+- **By sentiment:** negative 396 · neutral 21 · mixed 7
 
 _The curated deep-dive below covers the initial hand-reviewed sample and is intentionally narrower than these live totals._
 <!-- AUTOSTATS:LIVE:END -->

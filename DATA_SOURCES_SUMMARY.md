@@ -1,7 +1,7 @@
 # Developer Feedback Dashboard — Data Sources & Status
 
 <!-- AUTOSTATS:DATE:START -->
-_As of 2026-07-09_
+_As of 2026-07-20_
 <!-- AUTOSTATS:DATE:END -->
 
 The dashboard tracks public developer feedback about **Together AI**, **Fireworks AI**,
@@ -11,7 +11,7 @@ Machine Learning** — Microsoft's managed ML platform for model training and ma
 endpoints (inference) — and the **OpenAI API** (api.openai.com), OpenAI's hosted inference API
 for chat/Responses, embeddings, audio, images, and the Realtime API.
 <!-- AUTOSTATS:COUNTS:START -->
-It currently displays **366 items** — **37 hand-curated** (10 Together AI, 3 Fireworks AI, 11 Azure Machine Learning, 13 OpenAI) plus **329 auto-collected** (67 from Status page, 25 from Hacker News, 121 from GitHub issues, 97 from Stack Overflow, 12 from serverfault, 6 from devops-stackexchange, 1 from Community Forum). Every item is linked to its original public source.
+It currently displays **424 items** — **37 hand-curated** (10 Together AI, 3 Fireworks AI, 11 Azure Machine Learning, 13 OpenAI) plus **387 auto-collected** (99 from Status page, 26 from Hacker News, 138 from GitHub issues, 97 from Stack Overflow, 12 from serverfault, 6 from devops-stackexchange, 9 from Community Forum). Every item is linked to its original public source.
 <!-- AUTOSTATS:COUNTS:END -->
 
 ---

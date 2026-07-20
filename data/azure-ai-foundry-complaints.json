@@ -1,6 +1,6 @@
 {
   "provider": "Azure AI Foundry",
-  "generated_at": "2026-07-09T15:00:35.369Z",
+  "generated_at": "2026-07-13T15:00:40.031Z",
   "window": "auto-collected from public sources (Hacker News, GitHub, Stack Overflow)",
   "source_count": 40,
   "note": "Auto-populated by tools/refresh.js from PUBLIC sources only. Tracks Azure AI Foundry / Azure AI Studio and the Azure OpenAI model deployments that run under Foundry. Items are heuristically categorized and flagged auto_collected:true (verified:false). Every item links to its original public post.",
@@ -674,6 +674,34 @@
       "source_url": "https://github.com/goodtocode/azure-arm/issues/47",
       "corroborating_urls": [],
       "date": "2026-07-09",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "aif-0030",
+      "complaint": "Auto-collected GitHub mention referencing Azure AI Foundry: \"[Bug]: Azure AI Foundry Responses requests fail when Hermes replays encrypted reasoning. ### Bug Description Hermes can start a conversation successfully with an Azure AI Foundry GPT-5.x deployment through t\"",
+      "quote": "[Bug]: Azure AI Foundry Responses requests fail when Hermes replays encrypted reasoning. ### Bug Description Hermes can start a conversation successfully with an Azure AI Foundry GPT-5.x deployment through t",
+      "category": "other",
+      "sentiment": "negative",
+      "author_handle": "vidarak",
+      "source": "github",
+      "source_url": "https://github.com/NousResearch/hermes-agent/issues/63257",
+      "corroborating_urls": [],
+      "date": "2026-07-12",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "aif-0031",
+      "complaint": "Auto-collected GitHub mention referencing Azure AI Foundry: \"ent Framework, multi-agent topologies **Domain 3 — Monitor & Optimize:** - Evaluation metrics: groundedness, coherence, relevance, safety - AI Foundry evaluation pipelines, prompt iteration - Cost and latency optimization techniques **Domain 4 — Lifecycle & Responsible AI:** - Microsoft Responsib...\"",
+      "quote": "ent Framework, multi-agent topologies **Domain 3 — Monitor & Optimize:** - Evaluation metrics: groundedness, coherence, relevance, safety - AI Foundry evaluation pipelines, prompt iteration - Cost and latency optimization techniques **Domain 4 — Lifecycle & Responsible AI:** - Microsoft Responsib...",
+      "category": "latency",
+      "sentiment": "negative",
+      "author_handle": "ajchava",
+      "source": "github",
+      "source_url": "https://github.com/ajeetchouksey/ajch_platform/issues/162",
+      "corroborating_urls": [],
+      "date": "2026-07-11",
       "verified": false,
       "auto_collected": true
     }

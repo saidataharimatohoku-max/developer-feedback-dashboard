@@ -1,6 +1,6 @@
 {
   "provider": "Tinker API",
-  "generated_at": "2026-07-06T14:42:03.596Z",
+  "generated_at": "2026-07-16T15:00:19.416Z",
   "window": "last 365 days (live refresh)",
   "source_count": 0,
   "note": "Tinker is the model fine-tuning/training API from Thinking Machines Lab (thinkingmachines.ai/tinker). This dataset is populated automatically by tools/refresh.js from public Hacker News and GitHub mentions. Because 'Tinker' is a very common word, matching is restricted to the product's own identifiers (thinkingmachines.ai, the thinking-machines-lab GitHub org, the tinker-cookbook repo, and the phrase 'Tinker API'). Auto-collected items are unverified keyword-heuristic guesses.",
@@ -268,6 +268,34 @@
       "source_url": "https://github.com/Abhishek21g/tinker-workbench/issues/4",
       "corroborating_urls": [],
       "date": "2026-07-04",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "tk-0020",
+      "complaint": "Auto-collected Hacker News mention referencing Tinker API: \"ovement flows back up as the outer loop's reward (plus a validation-efficiency term and a small train-speed tie-breaker). The outer loop is tinker-cookbook's importance-sampling GRPO, run async off-policy so one slow episode doesn't stall a batch. Results, over 54 outer-loop steps (~1,750 real GP...\"",
+      "quote": "ovement flows back up as the outer loop's reward (plus a validation-efficiency term and a small train-speed tie-breaker). The outer loop is tinker-cookbook's importance-sampling GRPO, run async off-policy so one slow episode doesn't stall a batch. Results, over 54 outer-loop steps (~1,750 real GP...",
+      "category": "latency",
+      "sentiment": "negative",
+      "author_handle": "Danau5tin",
+      "source": "hackernews",
+      "source_url": "https://news.ycombinator.com/item?id=48905928",
+      "corroborating_urls": [],
+      "date": "2026-07-14",
+      "verified": false,
+      "auto_collected": true
+    },
+    {
+      "id": "tk-0021",
+      "complaint": "Auto-collected GitHub mention referencing Tinker API: \"**July 15, 2026**: they shipped **Inkling**, a from-scratch open-weights flagship. This issue is the add/don't-add evaluation. ## The lab **Thinking Machines Lab** ([thinkingmachines.ai](https://thinkingmachines.ai), HF [thinkingmachines](https://huggingface.co/thinkingmachines), GitHub [thinking...\"",
+      "quote": "**July 15, 2026**: they shipped **Inkling**, a from-scratch open-weights flagship. This issue is the add/don't-add evaluation. ## The lab **Thinking Machines Lab** ([thinkingmachines.ai](https://thinkingmachines.ai), HF [thinkingmachines](https://huggingface.co/thinkingmachines), GitHub [thinking...",
+      "category": "latency",
+      "sentiment": "negative",
+      "author_handle": "hammer",
+      "source": "github",
+      "source_url": "https://github.com/hammer/labs/issues/47",
+      "corroborating_urls": [],
+      "date": "2026-07-16",
       "verified": false,
       "auto_collected": true
     }
