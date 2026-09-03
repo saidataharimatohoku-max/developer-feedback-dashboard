@@ -1,50 +1,50 @@
 {
-  "generated_at": "2026-07-20T15:00:28.577Z",
+  "generated_at": "2026-09-03T15:00:33.380Z",
   "note": "Auto-generated from the live normalized data in data/ by tools/refresh.js; computed figures match /api/summary. Includes auto-collected items (verified:false). top_issues = the 5 most recent dated complaint/feature_request items.",
-  "total": 424,
+  "total": 567,
   "curated_total": 37,
-  "auto_collected_total": 387,
+  "auto_collected_total": 530,
   "by_platform": {
-    "Together AI": 21,
-    "Fireworks AI": 33,
-    "Tinker API": 21,
-    "Azure Kubernetes Service": 74,
-    "Azure Machine Learning": 39,
-    "Azure AI Foundry": 50,
-    "OpenAI": 186
+    "Together AI": 30,
+    "Fireworks AI": 53,
+    "Tinker API": 28,
+    "Azure Kubernetes Service": 84,
+    "Azure Machine Learning": 43,
+    "Azure AI Foundry": 73,
+    "OpenAI": 256
   },
   "by_feedback_type": {
-    "complaint": 332,
-    "question": 69,
-    "feature_request": 23,
+    "complaint": 454,
+    "question": 79,
+    "feature_request": 34,
     "neutral": 0,
     "positive": 0
   },
   "by_category": {
     "docs": 30,
-    "latency": 46,
-    "pricing": 15,
-    "other": 79,
-    "downtime": 131,
-    "billing": 22,
-    "model_quality": 39,
-    "rate_limits": 19,
-    "api_change": 11,
-    "support": 32
+    "latency": 55,
+    "pricing": 16,
+    "other": 130,
+    "downtime": 183,
+    "billing": 27,
+    "model_quality": 55,
+    "rate_limits": 21,
+    "support": 39,
+    "api_change": 11
   },
   "by_sentiment": {
     "mixed": 7,
-    "negative": 396,
+    "negative": 539,
     "neutral": 21
   },
   "by_source": {
-    "hackernews": 44,
-    "statuspage": 100,
-    "github": 156,
-    "stackoverflow": 97,
+    "hackernews": 47,
+    "statuspage": 142,
+    "github": 237,
+    "stackoverflow": 99,
     "serverfault": 12,
     "devops-stackexchange": 6,
-    "discourse": 9
+    "discourse": 24
   },
   "trend_by_month": [
     {
@@ -193,55 +193,63 @@
     },
     {
       "month": "2026-07",
-      "count": 67
+      "count": 112
+    },
+    {
+      "month": "2026-08",
+      "count": 85
+    },
+    {
+      "month": "2026-09",
+      "count": 13
     }
   ],
   "undated_count": 0,
   "top_issues": [
     {
-      "id": "oa-0165",
+      "id": "aif-0051",
+      "provider": "Azure AI Foundry",
+      "feedback_type": "complaint",
+      "category": "other",
+      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"mple` engine does straightforward text search near each field's hint; a second `azure-content-understanding` engine is added by the linked \"Azure AI Foundry: connector + skill for Azure AI Content Understanding\" issue once it lands, reusing this exact schema/output/provenance contract rather than...\"",
+      "source_url": "https://github.com/agentchieflou/this-next-please/issues/30",
+      "date": "2026-09-03"
+    },
+    {
+      "id": "aif-0052",
+      "provider": "Azure AI Foundry",
+      "feedback_type": "complaint",
+      "category": "support",
+      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"preview` can be rejected as an unsupported API version, causing the exercise to fail with no clear fix suggested in the instructions. Since Azure OpenAI ships new dated API versions roughly monthly, any hardcoded value like this will keep going stale. **Problem 2 - the \"Target URI\" step no longer...\"",
+      "source_url": "https://github.com/MicrosoftLearning/mslearn-ai-language/issues/153",
+      "date": "2026-09-03"
+    },
+    {
+      "id": "aif-0053",
+      "provider": "Azure AI Foundry",
+      "feedback_type": "complaint",
+      "category": "other",
+      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"reference photo (#63) fails in production: ``` 502 Bad Gateway on POST /ui/cards/generate Error panel: \"Reference Photo Generation Failed — Azure AI Foundry failed to generate artwork from the uploaded photo.\" ``` ## Root cause (strong suspicion, needs confirmation) `app/generation.py` — both `Az...\"",
+      "source_url": "https://github.com/bmoussaud/fantasy-cards-generator/issues/65",
+      "date": "2026-09-03"
+    },
+    {
+      "id": "aif-0054",
+      "provider": "Azure AI Foundry",
+      "feedback_type": "complaint",
+      "category": "other",
+      "summary": "Auto-collected GitHub mention referencing Azure AI Foundry: \"Pode 2.14.1 fails while parsing an Azure AI Foundry POST body. ## Error Pode 2.14.1 throws an out-of-range exception in `PodeHttpRequestStrategy.ParseBody` when receiving an MCP initialization POST from Azure AI Foundry Agent Runtime.\"",
+      "source_url": "https://github.com/Badgerati/Pode/issues/1791",
+      "date": "2026-09-03"
+    },
+    {
+      "id": "oa-0235",
       "provider": "OpenAI",
       "feedback_type": "complaint",
       "category": "downtime",
-      "summary": "Auto-collected Status page mention referencing OpenAI: \"Elevated errors for GitHub-dependent ChatGPT and Codex workflows. Status: Resolved All impacted services have now fully recovered. Affected components Codex Web (Operational) Connectors/Apps (Operational) CLI (Operational) VS Code extension (Operational)\"",
-      "source_url": "https://status.openai.com//incidents/01KXYF4BTCV9DTZ5NDSFN716FH",
-      "date": "2026-07-20"
-    },
-    {
-      "id": "oa-0166",
-      "provider": "OpenAI",
-      "feedback_type": "complaint",
-      "category": "downtime",
-      "summary": "Auto-collected Status page mention referencing OpenAI: \"Elevated errors affecting ChatGPT. Status: Resolved All impacted services have now fully recovered. Affected components Voice mode (Operational) Conversations (Operational) Connectors/Apps (Operational) ChatGPT Work (Operational)\"",
-      "source_url": "https://status.openai.com//incidents/01KXXDNEAKEPRGFM661SBJJAM6",
-      "date": "2026-07-19"
-    },
-    {
-      "id": "tg-0021",
-      "provider": "Together AI",
-      "feedback_type": "complaint",
-      "category": "model_quality",
-      "summary": "Auto-collected GitHub mention referencing Together AI: \"Mark 6 removed Together.ai serverless models as status = \"deprecated\". ## Issue The following together.ai models still appear in the models.dev catalog as fully active, but are no longer serves them via the serverle\"",
-      "source_url": "https://github.com/anomalyco/models.dev/issues/3324",
-      "date": "2026-07-18"
-    },
-    {
-      "id": "oa-0167",
-      "provider": "OpenAI",
-      "feedback_type": "complaint",
-      "category": "downtime",
-      "summary": "Auto-collected Status page mention referencing OpenAI: \"Some users are unable to access Codex. Status: Resolved All impacted services have now fully recovered. Affected components CLI (Operational) Codex in ChatGPT Desktop (Operational)\"",
-      "source_url": "https://status.openai.com//incidents/01KXT44TAQQ2R0AZDDVSJGAC4H",
-      "date": "2026-07-18"
-    },
-    {
-      "id": "oa-0160",
-      "provider": "OpenAI",
-      "feedback_type": "complaint",
-      "category": "downtime",
-      "summary": "Auto-collected Status page mention referencing OpenAI: \"Codex 5.6-sol Experiencing Increased Server-Overload Errors. Status: Identified We have identified that users are experiencing elevated errors for the impacted services. We are working on implementing a mitigation.\"",
-      "source_url": "https://status.openai.com//incidents/01KXRHE25717D2WQ1WFMT2B7WZ",
-      "date": "2026-07-17"
+      "summary": "Auto-collected Status page mention referencing OpenAI: \"Elevated errors across ChatGPT and Codex. Status: Investigating We are investigating the issue for the listed services. Affected components VS Code extension (Degraded performance) Codex API (Degraded performance) Compliance API (Degraded performance) Connectors/Apps (Degraded performance) ChatGP...\"",
+      "source_url": "https://status.openai.com//incidents/01M1KWEDH417T2CF44YYHZDFCR",
+      "date": "2026-09-03"
     }
   ]
 }
